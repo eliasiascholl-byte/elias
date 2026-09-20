@@ -118,6 +118,8 @@ textarea{resize:vertical;min-height:70px;}
 .dash-scope .chip{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;}
 .dash-scope .chip-teal{background:rgba(31,128,120,.14);color:#1F8078;}
 .dash-scope .chip-ink{background:rgba(21,34,58,.08);color:var(--text);}
+.chip-amber{background:rgba(229,162,60,.16);color:#B4791F;}
+.chip-red{background:rgba(196,58,58,.14);color:#C43A3A;}
 .dash-scope .period-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;}
 .dash-scope .period-tab{flex-shrink:0;font-size:11px;font-weight:600;padding:6px 11px;border-radius:999px;border:1px solid var(--border);color:var(--text-soft);}
 .dash-scope .period-tab.active{background:#E5A23C;border-color:#E5A23C;color:var(--text);}
@@ -213,8 +215,38 @@ textarea{resize:vertical;min-height:70px;}
         </div>
         <p class="small" style="text-align:center;margin-top:2px">¿Eres docente, orientador/a u otro perfil? Usa el usuario y la clave temporal que te dio tu colegio.</p>
         <a class="link" style="text-align:center" href="#" onclick="Elias.go('crearinstitucion');return false;">¿Tu colegio todavía no está en ELIAS? Créalo aquí</a>
+
+        <div class="card" style="margin-top:10px;background:rgba(46,196,163,.08);border:1px dashed rgba(46,196,163,.4)">
+          <p class="card-title" style="margin:0 0 4px">Modo demostración</p>
+          <p class="small" style="margin:0 0 8px">Entra con una cuenta de prueba ya cargada con datos reales de ejemplo — no necesita internet ni Supabase.</p>
+          <button class="btn btn-primary" onclick="Elias.go('demoacceso');return false;">Entrar en modo demostración</button>
+        </div>
       </div>
       <p class="foot-note">ELIAS v0.1 (arranque de código)</p>
+    </div>
+  </section>
+
+  <!-- ACCESO DEMOSTRACIÓN -->
+  <section class="screen" id="screen-demoacceso">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.go('login')">← Atrás</button><h1>Modo demostración</h1></div>
+    <div class="wrap">
+      <p class="lead">ELIAS tiene, desde el inicio, <strong>dos accesos distintos</strong>: uno por correo (Rectoría, Secretaría, Coordinaciones, Orientación) y otro por usuario y clave fijos (Docentes, Estudiantes, Acudientes).</p>
+      <div class="toggle" id="demoacceso-toggle">
+        <div class="toggle-opt active" onclick="Elias.demoTab('correo', event)">Acceso por correo</div>
+        <div class="toggle-opt" onclick="Elias.demoTab('usuario', event)">Acceso por usuario</div>
+      </div>
+
+      <div id="demoacceso-correo">
+        <p class="small">Elige una cuenta de prueba y entra con un clic — la clave ya viene puesta.</p>
+        <div id="demoacceso-correo-lista"></div>
+      </div>
+
+      <div id="demoacceso-usuario" style="display:none">
+        <p class="small">Así entran docentes, estudiantes y acudientes: con el usuario y la clave fija que les entregó su director de curso — nunca con un correo.</p>
+        <div id="demoacceso-usuario-lista"></div>
+      </div>
+
+      <p class="small" style="margin-top:10px">Estas cuentas de prueba tienen historial real cargado (observador, notas, actividades, PIAR, gobierno escolar) para que pruebes cada función.</p>
     </div>
   </section>
 
@@ -332,7 +364,6 @@ textarea{resize:vertical;min-height:70px;}
       <a class="link" style="text-align:center" href="#" onclick="Elias.go('dashboard');return false;">Saltar tutorial</a>
     </div>
   </section>
-
   <!-- REGISTRO DOCENTE -->
   <section class="screen" id="screen-registro">
     <div class="topbar"><img src="icon-elias.png" alt="ELIAS"><h1>Registro de docente</h1></div>
@@ -390,6 +421,22 @@ textarea{resize:vertical;min-height:70px;}
       </div>
       <button class="btn btn-primary" onclick="Elias.registrarDocente()">Crear cuenta</button>
       <p class="small">Dale al docente su correo y esta clave — debe cambiarla en su primer ingreso.</p>
+
+      <div class="card" style="margin-top:16px">
+        <p class="card-title" style="margin:0 0 4px">Registro masivo (varios a la vez)</p>
+        <p class="small" style="margin:0 0 8px">Pega un nombre por línea (o pégalos desde tu Excel) — ELIAS genera usuario y clave para cada uno, sin hacerlo uno por uno.</p>
+        <div class="field"><label>Nombres de los docentes</label><textarea id="reg-masivo-nombres" placeholder="Laura Jiménez&#10;Pedro Castro&#10;..."></textarea></div>
+        <button class="btn btn-primary" onclick="Elias.registrarDocentesMasivo()">Generar usuarios y claves</button>
+        <div id="reg-masivo-resultado"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <p class="card-title" style="margin:0 0 4px">Matrícula masiva de estudiantes</p>
+        <p class="small" style="margin:0 0 8px">Un estudiante por línea, formato: Nombre; Curso; Acudiente</p>
+        <div class="field"><label>Estudiantes</label><textarea id="reg-masivo-estudiantes" placeholder="Camila Torres; 6°A; Marta Torres&#10;Sofía Ramírez; 6°A; Luis Ramírez"></textarea></div>
+        <button class="btn btn-primary" onclick="Elias.registrarEstudiantesMasivo()">Matricular y generar usuarios</button>
+        <div id="reg-masivo-estudiantes-resultado"></div>
+      </div>
     </div>
   </section>
 
@@ -432,7 +479,6 @@ textarea{resize:vertical;min-height:70px;}
       <p>El colegio que contrata ELIAS es el responsable del tratamiento de los datos; ELIAS actúa como encargado técnico.</p>
     </div>
   </section>
-
   <!-- DASHBOARD PLACEHOLDER -->
   <section class="screen" id="screen-dashboard">
     <div class="topbar"><img src="icon-elias.png" alt="ELIAS"><h1>ELIAS</h1></div>
@@ -718,12 +764,13 @@ textarea{resize:vertical;min-height:70px;}
       <div class="navitem" onclick="Elias.go('perfilusuario')">Perfil</div>
     </div>
   
-
   <!-- AVISOS / NOTIFICACIONES -->
   <section class="screen" id="screen-notificaciones">
     <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Nuevo comunicado</h1></div>
     <div class="wrap">
       <div class="dash-scope">
+<div id="notif-banner"></div>
+<div id="notif-lista"></div>
 <div class="card">
       <p class="card-title">Filtrar por</p>
       <div class="filter-grid">
@@ -776,10 +823,54 @@ textarea{resize:vertical;min-height:70px;}
         <p class="small" id="pu-name">—</p>
         <p class="small" id="pu-role">—</p>
       </div>
+      <div id="pu-datos-referencia"></div>
+      <div class="card">
+        <p class="card-title" style="margin:0 0 8px">Mis datos personales</p>
+        <div class="field"><label>Foto de perfil (URL o descripción)</label><input type="text" id="pu-foto" placeholder="Ej: foto.jpg"></div>
+        <div class="grid2">
+          <div class="field"><label>Fecha de nacimiento</label><input type="date" id="pu-fechanac"></div>
+          <div class="field"><label>Número de documento</label><input type="text" id="pu-documento"></div>
+        </div>
+        <div class="field"><label>Título / estudios</label><input type="text" id="pu-estudios" placeholder="Ej: Lic. en Matemáticas"></div>
+        <div class="field"><label>Dirección</label><input type="text" id="pu-direccion"></div>
+        <div class="field"><label>Teléfono(s)</label><input type="text" id="pu-telefono" placeholder="Puedes separar con coma"></div>
+        <button class="btn btn-primary" onclick="Elias.guardarPerfilDemo()">Guardar mis datos</button>
+      </div>
       <button class="btn btn-ghost" onclick="Elias.go('onboarding');Elias.obReset();">Ver tutorial de nuevo</button>
       <button class="btn btn-ghost" onclick="Elias.go('terminos')">Términos de uso</button>
       <button class="btn btn-ghost" onclick="Elias.go('privacidad')">Protección de datos</button>
       <button class="btn btn-primary" onclick="Elias.go('login')">Cerrar sesión</button>
+    </div>
+  </section>
+
+  <!-- GOBIERNO ESCOLAR -->
+  <section class="screen" id="screen-gobiernoescolar">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Gobierno escolar</h1></div>
+    <div class="wrap">
+      <div id="gob-contenido"></div>
+    </div>
+  </section>
+
+  <!-- PIAR -->
+  <section class="screen" id="screen-piar">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>PIAR — Plan de acompañamiento</h1></div>
+    <div class="wrap">
+      <div id="piar-contenido"></div>
+    </div>
+  </section>
+
+  <!-- APOYO DE ESTUDIO CON IA -->
+  <section class="screen" id="screen-apoyoestudio">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Estudiar con Llama (IA)</h1></div>
+    <div class="wrap">
+      <p class="lead">Cuéntale qué tema no entendiste y Llama te explica, te da un ejemplo y ejercicios de práctica.</p>
+      <div class="field"><label>Asignatura</label><input type="text" id="ap-asignatura" placeholder="Ej: Ciencias Naturales"></div>
+      <div class="field"><label>Tema</label><input type="text" id="ap-tema" placeholder="Ej: óxido-reducción"></div>
+      <button class="btn btn-primary" onclick="Elias.pedirApoyoEstudio()">Preguntarle a Llama</button>
+      <div class="card" id="ap-resultado" style="display:none">
+        <p class="card-title" style="margin:0 0 4px">Llama responde</p>
+        <p class="small" id="ap-resultado-texto" style="white-space:pre-line"></p>
+      </div>
     </div>
   </section>
 
@@ -788,62 +879,27 @@ textarea{resize:vertical;min-height:70px;}
     <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Planilla de calificaciones</h1></div>
     <div class="wrap">
       <div class="dash-scope">
-<div class="toggle">
-      <div class="toggle-opt">Mis cursos</div>
-      <div class="toggle-opt active">Mis asignaturas</div>
-    </div>
-    <div class="card">
-      <div class="row">
-        <p class="card-title" style="margin:0">Español · varios cursos</p>
-        <span class="chip chip-teal">Por área</span>
-      </div>
-      <p class="card-sub">38 estudiantes · 6°A, 7°B y 8°A, cada uno en su propia planilla de Español</p>
-    </div>
-    <div class="period-tabs">
-      <div class="period-tab">Periodo 1</div>
-      <div class="period-tab">Periodo 2</div>
-      <div class="period-tab active">Periodo 3</div>
-      <div class="period-tab">Periodo 4</div>
-    </div>
-    <div class="table-wrap">
-      <div class="t-head"><span>Estudiante</span><span>N1</span><span>N2</span><span>N3</span><span>N4</span><span>Final</span></div>
-      <div class="t-body">
-        <div class="t-row">
-          <div class="stu-name">Camila Torres<span class="grade-tag">6°A</span></div>
-          <input class="note-input" value="4.5"><input class="note-input" value="4.2"><input class="note-input empty" placeholder="—"><input class="note-input empty" placeholder="—">
-          <span class="final-note">4.4</span>
+        <div class="field"><label>Asignatura</label>
+          <select id="pl-asignatura" onchange="Elias.renderPlanilla()"></select>
         </div>
-        <div class="t-row">
-          <div class="stu-name">Sofía Ramírez<span class="grade-tag">6°A</span></div>
-          <input class="note-input" value="3.8"><input class="note-input" value="4.0"><input class="note-input" value="3.6"><input class="note-input empty" placeholder="—">
-          <span class="final-note">3.8</span>
+        <p class="hint">4 casillas de 25% cada una (Actividades, Evaluaciones, Tareas, Evaluación final) → Promedio automático. Comportamiento y autoevaluación se registran aparte y sirven de insumo para el puesto.</p>
+        <div id="planilla-tabla"></div>
+        <div class="card" id="pl-calculadora" style="margin-top:10px">
+          <p class="card-title" style="margin:0 0 4px">Calculadora de actividades</p>
+          <p class="small" style="margin:0 0 6px">Escribe las notas de todas las actividades del periodo (separadas por coma) y te doy el promedio para la casilla "Actividades".</p>
+          <div class="row" style="gap:8px">
+            <input type="text" id="pl-calc-input" placeholder="Ej: 4.3, 4.0, 4.5, 3.8" style="flex:1">
+            <button class="btn btn-ghost" onclick="Elias.calcularPromedioActividades()">Calcular</button>
+          </div>
+          <p class="small" id="pl-calc-resultado"></p>
         </div>
-        <div class="t-row">
-          <div class="stu-name">Andrés Morales<span class="grade-tag">7°B</span></div>
-          <input class="note-input" value="4.1"><input class="note-input empty" placeholder="—"><input class="note-input empty" placeholder="—"><input class="note-input empty" placeholder="—">
-          <span class="final-note">4.1</span>
+        <div class="row" style="gap:8px;margin-top:10px">
+          <button class="btn btn-ghost" onclick="Elias.exportarConsolidado('planilla','pdf')">Descargar PDF</button>
+          <button class="btn btn-primary" onclick="Elias.exportarConsolidado('planilla','excel')">Descargar Excel</button>
         </div>
-        <div class="t-row">
-          <div class="stu-name">Juan Pérez<span class="grade-tag">7°B</span></div>
-          <input class="note-input" value="4.6"><input class="note-input" value="4.8"><input class="note-input" value="4.5"><input class="note-input" value="4.7">
-          <span class="final-note">4.65</span>
-        </div>
-        <div class="t-row">
-          <div class="stu-name">Laura Gómez<span class="grade-tag">8°A</span></div>
-          <input class="note-input" value="3.5"><input class="note-input" value="3.9"><input class="note-input empty" placeholder="—"><input class="note-input empty" placeholder="—">
-          <span class="final-note">3.7</span>
-        </div>
-      </div>
-    </div>
-    <p class="hint">El promedio final se calcula solo con las casillas que uses — no divide entre 4 si no las llenas todas.</p>
-    <div class="row" style="gap:8px">
-      <button class="btn btn-ghost">Descargar PDF</button>
-      <button class="btn btn-primary">Descargar Excel</button>
-    </div>
       </div>
     </div>
   </section>
-
   <!-- PERFIL INSTITUCIONAL -->
   <section class="screen" id="screen-perfilinstitucional">
     <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Perfil institucional</h1></div>
@@ -1010,7 +1066,6 @@ textarea{resize:vertical;min-height:70px;}
       </div>
     </div>
   </section>
-
   <!-- REGISTRAR CONVIVENCIA -->
   <section class="screen" id="screen-convivencia">
     <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Registrar convivencia</h1></div>
@@ -1039,12 +1094,24 @@ textarea{resize:vertical;min-height:70px;}
   <section class="screen" id="screen-observador">
     <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Observador del estudiante</h1></div>
     <div class="wrap">
-      <p class="lead">Anota un evento del día — se conecta automáticamente al historial del estudiante.</p>
-      <div class="field"><label>Estudiante</label><input type="text" placeholder="Nombre del estudiante"></div>
-      <div class="field"><label>Fecha</label><input type="date"></div>
-      <div class="field"><label>Anotación</label><textarea placeholder="Qué observaste…"></textarea></div>
-      <button class="btn btn-primary" onclick="Elias.go('dashboard')">Guardar anotación</button>
-      <p class="small">Si se acumulan varias anotaciones similares, ELIAS puede sugerir — nunca decidir — escalar a un Anexo 2.</p>
+      <p class="lead">El registro se puede editar solo durante 15 minutos después de guardarlo. Pasado ese tiempo, queda fijo por garantías del debido proceso.</p>
+      <div class="card" id="obs-nuevo">
+        <p class="card-title" style="margin:0 0 8px">Nueva anotación</p>
+        <div class="field"><label>Estudiante</label>
+          <select id="obs-estudiante"></select>
+        </div>
+        <div class="field">
+          <label>Tipo de falta</label>
+          <select id="obs-tipo">
+            <option value="1">Tipo 1</option>
+            <option value="2">Tipo 2</option>
+            <option value="3">Tipo 3</option>
+          </select>
+        </div>
+        <div class="field"><label>Qué observaste</label><textarea id="obs-descripcion" placeholder="Describe el hecho…"></textarea></div>
+        <button class="btn btn-primary" onclick="Elias.guardarObservador()">Guardar reporte</button>
+      </div>
+      <div id="obs-lista"></div>
     </div>
   </section>
 
@@ -1073,10 +1140,10 @@ textarea{resize:vertical;min-height:70px;}
         <button class="btn btn-ghost" style="flex:1">Global</button>
       </div>
       <div class="kpi-grid">
-        <div class="kpi"><p class="kpi-num">4.1</p><p class="kpi-label">Promedio académico</p></div>
-        <div class="kpi"><p class="kpi-num">12</p><p class="kpi-label">Casos convivencia</p></div>
-        <div class="kpi"><p class="kpi-num">6</p><p class="kpi-label">PIAR activos</p></div>
-        <div class="kpi"><p class="kpi-num">4.2%</p><p class="kpi-label">Deserción</p></div>
+        <div class="kpi"><p class="kpi-num" id="ic-kpi-prom">—</p><p class="kpi-label">Promedio académico</p></div>
+        <div class="kpi"><p class="kpi-num" id="ic-kpi-conv">—</p><p class="kpi-label">Casos convivencia</p></div>
+        <div class="kpi"><p class="kpi-num" id="ic-kpi-piar">—</p><p class="kpi-label">PIAR activos</p></div>
+        <div class="kpi"><p class="kpi-num" id="ic-kpi-est">—</p><p class="kpi-label">Estudiantes</p></div>
       </div>
       <div class="card">
         <p class="card-title">Conclusiones (IA)</p>
@@ -1085,12 +1152,11 @@ textarea{resize:vertical;min-height:70px;}
       </div>
       </div>
       <div class="row" style="gap:8px">
-        <button class="btn btn-ghost" style="flex:1">Descargar PDF</button>
-        <button class="btn btn-primary" style="flex:1">Publicar a directivos</button>
+        <button class="btn btn-ghost" style="flex:1" onclick="Elias.exportarConsolidado('informe','pdf')">Descargar PDF</button>
+        <button class="btn btn-primary" style="flex:1" onclick="Elias.exportarConsolidado('informe','excel')">Descargar Excel</button>
       </div>
     </div>
   </section>
-
   <!-- GESTIÓN DE PERMISOS (Rector) -->
   <section class="screen" id="screen-permisos">
     <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Gestión de permisos</h1></div>
@@ -1267,7 +1333,9 @@ textarea{resize:vertical;min-height:70px;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-client.js"></script>
 <script src="js/ai/llama-client.js"></script>
+<script src="js/demo.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
-

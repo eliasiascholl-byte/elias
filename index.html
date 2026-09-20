@@ -1,0 +1,1273 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ELIAS</title>
+<meta name="description" content="App de gestión escolar ELIAS — arranque real: login, tutorial guiado por voz, políticas de uso y protección de datos, registro de docente.">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#15223A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ELIAS">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Work+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ink:#15223A; --teal:#1F8078; --teal-2:#2AA298; --amber:#E5A23C; --slate:#59698A;
+  --paper:#F3F5F8; --paper-2:#E7ECF1; --surface:#FFFFFF; --border:rgba(21,34,58,.12);
+  --danger:#B13A3A; --bg:#F3F5F8; --text:#15223A; --text-soft:#59698A;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1930; --surface:#16233F; --text:#F3F5F9; --text-soft:#AEBAD1; --border:rgba(255,255,255,.12); --paper:#0E1930; --paper-2:#16233F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1930; --surface:#16233F; --text:#F3F5F9; --text-soft:#AEBAD1; --border:rgba(255,255,255,.12); --paper:#0E1930; --paper-2:#16233F;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Work Sans',system-ui,sans-serif;min-height:100vh;}
+#app{max-width:460px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);}
+.screen{display:none;flex-direction:column;min-height:100vh;padding:0 0 24px;}
+.screen.active{display:flex;}
+.elias-toast{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 14px);z-index:999;background:var(--ink);color:#fff;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:460px;margin:0 auto;}
+.elias-toast p{margin:0;font-size:13px;line-height:1.5;white-space:pre-line;}
+.elias-toast button{align-self:flex-end;}
+.topbar{padding:22px 20px 14px;display:flex;align-items:center;gap:10px;}
+.topbar img{width:30px;height:30px;border-radius:8px;}
+.topbar h1{font-family:'Manrope',sans-serif;font-weight:800;font-size:15px;margin:0;letter-spacing:.01em;}
+.wrap{padding:6px 22px 20px;display:flex;flex-direction:column;gap:14px;flex:1;}
+h2{font-family:'Manrope',sans-serif;font-weight:800;font-size:22px;margin:6px 0 2px;letter-spacing:-.01em;}
+p.lead{color:var(--text-soft);font-size:13.5px;margin:0 0 6px;line-height:1.5;}
+label{font-size:11.5px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px;display:block;}
+.field{margin-bottom:12px;}
+input[type=text],input[type=email],input[type=password],input[type=date],input[type=tel],select,textarea{
+  width:100%;padding:12px 13px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  font-family:'Work Sans',sans-serif;font-size:14px;
+}
+textarea{resize:vertical;min-height:70px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:12px;font-family:'Work Sans',sans-serif;font-weight:700;font-size:14px;padding:13px 16px;cursor:pointer;width:100%;}
+.btn-primary{background:var(--teal);color:#fff;}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-amber{background:var(--amber);color:var(--ink);}
+.btn-sm{width:auto;padding:9px 14px;font-size:12.5px;}
+.link{color:var(--teal);font-size:12.5px;text-decoration:none;font-weight:600;}
+.checkline{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--text-soft);line-height:1.45;}
+.checkline input{margin-top:3px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;}
+.foot-note{text-align:center;font-size:11.5px;color:var(--text-soft);margin-top:auto;padding-top:16px;}
+.doc h3{font-family:'Manrope',sans-serif;font-size:14px;margin:16px 0 4px;}
+.doc p, .doc li{font-size:12.5px;color:var(--text-soft);line-height:1.6;}
+.pill{display:inline-flex;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(31,128,120,.14);color:var(--teal);width:fit-content;}
+.step{display:none;flex-direction:column;gap:10px;}
+.step.active{display:flex;}
+.step-dots{display:flex;gap:6px;justify-content:center;margin:4px 0 2px;}
+.dot{width:7px;height:7px;border-radius:999px;background:var(--border);}
+.dot.on{background:var(--teal);}
+.mic-row{display:flex;align-items:center;gap:10px;background:var(--paper-2);border-radius:12px;padding:12px;}
+.mic-icon{width:34px;height:34px;border-radius:999px;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.small{font-size:11px;color:var(--text-soft);}
+.dash-scope .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:8px;}
+.dash-scope .card-title{font-family:'Manrope',sans-serif;font-weight:700;font-size:13.5px;margin:0;}
+.dash-scope .card-sub{font-size:11.5px;color:var(--text-soft);margin:0;}
+.dash-scope .row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.dash-scope .btn{font-family:'Work Sans',sans-serif;font-weight:600;font-size:12px;padding:8px 13px;border-radius:10px;border:none;cursor:pointer;}
+.dash-scope .btn-primary{background:#1F8078;color:#fff;}
+.dash-scope .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.dash-scope .kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.dash-scope .kpi{flex:1;background:var(--paper);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;}
+.dash-scope .kpi-num{font-family:'Manrope',sans-serif;font-weight:800;font-size:18px;margin:0;}
+.dash-scope .kpi-label{font-size:10.5px;color:var(--text-soft);margin:0;}
+.dash-scope .list-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(21,34,58,.06);font-size:13px;}
+.dash-scope .list-row:last-child{border-bottom:none;}
+.dash-scope .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.dash-scope .pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;}
+.dash-scope .pill-teal{background:rgba(31,128,120,.14);color:#1F8078;}
+.dash-scope .chip{font-size:11px;font-weight:600;padding:6px 11px;border-radius:999px;border:1px solid var(--border);color:var(--text);}
+.dash-scope .kpi-row{display:flex;gap:10px;}
+.dash-scope .btn-block{width:100%;box-sizing:border-box;}
+.dash-scope .pill-amber{background:rgba(229,162,60,.18);color:#a9762b;}
+.dash-scope .pill-ink{background:rgba(21,34,58,.08);color:var(--text);}
+.dash-scope .type-row{display:flex;gap:6px;}
+.dash-scope .type-chip{flex:1;text-align:center;font-size:11px;font-weight:700;padding:7px 4px;border-radius:9px;border:1px solid var(--border);color:var(--text);}
+.dash-scope .type-chip.t1{border-color:rgba(31,128,120,.4);color:#1F8078;}
+.dash-scope .type-chip.t2{border-color:rgba(229,162,60,.5);color:#a9762b;}
+.dash-scope .type-chip.t3{border-color:rgba(200,60,60,.5);color:#b13a3a;}
+.dash-scope .btn-sm{font-size:11px;padding:6px 10px;flex:1;}
+.dash-scope .ok-row{display:flex;align-items:center;gap:8px;color:#1F8078;font-size:12.5px;font-weight:600;}
+.dash-scope .timer{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#a9762b;}
+.dash-scope .bar-track{height:6px;border-radius:4px;background:rgba(21,34,58,.08);overflow:hidden;}
+.dash-scope .bar-fill{height:100%;border-radius:4px;}
+.dash-scope .pill-red{background:rgba(200,60,60,.14);color:#b13a3a;}
+.dash-scope{display:flex;flex-direction:column;gap:12px;}
+.role-switch{display:flex;flex-wrap:wrap;gap:6px;padding:0 22px 4px;}
+.role-btn{font-size:10.5px;font-weight:700;padding:6px 10px;border-radius:999px;border:1px solid var(--border);color:var(--text-soft);background:transparent;cursor:pointer;}
+.role-btn.on{background:var(--ink);border-color:var(--ink);color:#fff;}
+.dash-role{display:none;}
+.dash-role.active{display:block;}
+.dash-scope .toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:3px;gap:3px;}
+.dash-scope .toggle-opt{flex:1;text-align:center;font-size:11.5px;font-weight:600;padding:7px 4px;border-radius:9px;color:var(--text-soft);}
+.dash-scope .toggle-opt.active{background:var(--ink);color:#fff;}
+.dash-scope .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 13px;display:flex;flex-direction:column;gap:6px;}
+.dash-scope .row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.dash-scope .card-title{font-family:'Manrope',sans-serif;font-weight:700;font-size:13px;margin:0;}
+.dash-scope .card-sub{font-size:11px;color:var(--text-soft);margin:0;}
+.dash-scope .chip{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;}
+.dash-scope .chip-teal{background:rgba(31,128,120,.14);color:#1F8078;}
+.dash-scope .chip-ink{background:rgba(21,34,58,.08);color:var(--text);}
+.dash-scope .period-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;}
+.dash-scope .period-tab{flex-shrink:0;font-size:11px;font-weight:600;padding:6px 11px;border-radius:999px;border:1px solid var(--border);color:var(--text-soft);}
+.dash-scope .period-tab.active{background:#E5A23C;border-color:#E5A23C;color:var(--text);}
+.dash-scope .table-wrap{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+.dash-scope .t-head{display:grid;grid-template-columns:1fr 26px 26px 26px 26px 34px;gap:4px;background:var(--paper);padding:8px 10px;font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.02em;}
+.dash-scope .t-head span:not(:first-child){text-align:center;}
+.dash-scope .t-body{flex:1;overflow:auto;}
+.dash-scope .t-row{display:grid;grid-template-columns:1fr 26px 26px 26px 26px 34px;gap:4px;align-items:center;padding:8px 10px;border-bottom:1px solid rgba(21,34,58,.06);font-size:12px;}
+.dash-scope .t-row:last-child{border-bottom:none;}
+.dash-scope .stu-name{display:flex;flex-direction:column;gap:1px;}
+.dash-scope .stu-grade{font-size:10px;color:var(--text-soft);}
+.dash-scope .grade-tag{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:rgba(42,162,152,.14);color:#1F8078;width:fit-content;margin-top:2px;}
+.dash-scope .note-input{width:26px;text-align:center;border:1px solid var(--border);border-radius:6px;padding:3px 0;font-size:11px;font-weight:700;font-family:'Work Sans',sans-serif;}
+.dash-scope .note-input.empty{border-style:dashed;color:#AEBAD1;}
+.dash-scope .final-note{font-size:12.5px;font-weight:800;text-align:center;font-family:'Manrope',sans-serif;color:#1F8078;}
+.dash-scope .hint{font-size:10px;color:var(--text-soft);margin:0;}
+.dash-scope .btn{font-family:'Work Sans',sans-serif;font-weight:600;font-size:11.5px;padding:9px 12px;border-radius:10px;border:none;cursor:pointer;flex:1;text-align:center;}
+.dash-scope .btn-primary{background:#1F8078;color:#fff;}
+.dash-scope .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.dash-scope .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:8px;}
+.dash-scope .card-title{font-family:'Manrope',sans-serif;font-weight:700;font-size:13px;margin:0;}
+.dash-scope .card-sub{font-size:11px;color:var(--text-soft);margin:0;}
+.dash-scope .logo-row{display:flex;align-items:center;gap:10px;}
+.dash-scope .logo-box{width:46px;height:46px;border-radius:12px;background:var(--paper);border:1px dashed rgba(21,34,58,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dash-scope .row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.dash-scope .btn{font-family:'Work Sans',sans-serif;font-weight:600;font-size:11.5px;padding:8px 12px;border-radius:9px;border:none;cursor:pointer;}
+.dash-scope .btn-primary{background:#1F8078;color:#fff;}
+.dash-scope .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.dash-scope .field-label{font-size:10.5px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.03em;}
+.dash-scope .field{background:var(--paper);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--text-soft);}
+.dash-scope .switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid rgba(21,34,58,.06);}
+.dash-scope .switch-row:last-child{border-bottom:none;}
+.dash-scope .switch-label{display:flex;flex-direction:column;gap:1px;}
+.dash-scope .switch-name{font-size:12.5px;font-weight:600;}
+.dash-scope .switch-sub{font-size:10.5px;color:var(--text-soft);}
+.dash-scope .switch{width:38px;height:22px;border-radius:999px;background:#1F8078;position:relative;flex-shrink:0;}
+.dash-scope .switch::after{content:'';position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:999px;background:var(--surface);}
+.dash-scope .pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(229,162,60,.18);color:#a9762b;width:fit-content;}
+.dash-scope .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:9px;}
+.dash-scope .card-title{font-family:'Manrope',sans-serif;font-weight:700;font-size:13px;margin:0;}
+.dash-scope .card-sub{font-size:11px;color:var(--text-soft);margin:0;}
+.dash-scope .field{background:var(--paper);border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:12.5px;color:var(--text-soft);}
+.dash-scope .filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.dash-scope .filter-chip{font-size:11px;font-weight:600;padding:8px 10px;border-radius:10px;border:1px solid var(--border);color:var(--text);text-align:center;}
+.dash-scope .filter-chip.active{background:#1F8078;border-color:#1F8078;color:#fff;}
+.dash-scope .btn{font-family:'Work Sans',sans-serif;font-weight:600;font-size:12px;padding:9px 13px;border-radius:10px;border:none;cursor:pointer;}
+.dash-scope .btn-primary{background:#1F8078;color:#fff;}
+.dash-scope .btn-block{width:100%;box-sizing:border-box;}
+.dash-scope .directory{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+.dash-scope .dir-head{padding:10px 13px 6px;font-size:11px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.03em;}
+.dash-scope .dir-list{flex:1;overflow:auto;}
+.dash-scope .dir-row{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid rgba(21,34,58,.06);}
+.dash-scope .dir-row:last-child{border-bottom:none;}
+.dash-scope .avatar{width:30px;height:30px;border-radius:999px;background:rgba(31,128,120,.14);color:#1F8078;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:'Manrope',sans-serif;flex-shrink:0;}
+.dash-scope .dir-info{flex:1;display:flex;flex-direction:column;gap:1px;}
+.dash-scope .dir-name{font-size:12.5px;font-weight:600;}
+.dash-scope .dir-meta{font-size:10.5px;color:var(--text-soft);}
+.dash-scope .check{width:18px;height:18px;border-radius:6px;border:1px solid var(--border);flex-shrink:0;}
+.dash-scope .check.on{background:#1F8078;border-color:#1F8078;position:relative;}
+.dash-scope .back{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div id="elias-toast" class="elias-toast" hidden>
+  <p id="elias-toast-texto"></p>
+  <button class="btn btn-ghost btn-sm" onclick="Elias.cerrarMensaje()">Cerrar</button>
+</div>
+<div id="app">
+
+  <!-- LOGIN -->
+  <section class="screen active" id="screen-login">
+    <div class="topbar"><img src="icon-elias.png" alt="ELIAS"><h1>ELIAS</h1></div>
+    <div class="wrap">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;">
+        <div>
+          <h2>Inicia sesión</h2>
+          <p class="lead">Educación con Liderazgo, Inteligencia, Acompañamiento y Seguimiento.</p>
+        </div>
+        <div class="field">
+          <label>Correo electrónico</label>
+          <input type="email" id="login-email" placeholder="tu correo — institucional o personal" autocomplete="username">
+        </div>
+        <div class="field" style="margin-bottom:2px">
+          <label>Contraseña</label>
+          <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <p class="small" style="margin:0 0 6px">Cualquier correo sirve (Gmail, Yahoo, institucional) — lo que te identifica es tu cuenta dentro del colegio, no el dominio del correo.</p>
+        <a class="link" href="#" style="align-self:flex-end;margin-top:-8px">¿Olvidaste tu contraseña?</a>
+        <button class="btn btn-primary" onclick="Elias.login()">Ingresar</button>
+        <div class="checkline">
+          <input type="checkbox" id="login-terms">
+          <span>Acepto los <a class="link" href="#" onclick="Elias.go('terminos');return false;">Términos de uso</a> y la <a class="link" href="#" onclick="Elias.go('privacidad');return false;">Política de protección de datos</a>.</span>
+        </div>
+        <p class="small" style="text-align:center;margin-top:2px">¿Eres docente, orientador/a u otro perfil? Usa el usuario y la clave temporal que te dio tu colegio.</p>
+        <a class="link" style="text-align:center" href="#" onclick="Elias.go('crearinstitucion');return false;">¿Tu colegio todavía no está en ELIAS? Créalo aquí</a>
+      </div>
+      <p class="foot-note">ELIAS v0.1 (arranque de código)</p>
+    </div>
+  </section>
+
+  <!-- CREAR INSTITUCIÓN (primer registro del colegio, lo hace quien va a ser Rector/a) -->
+  <section class="screen" id="screen-crearinstitucion">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Crear institución</h1></div>
+    <div class="wrap">
+      <p class="lead">Esto lo hace la persona que va a ser <strong>Rector/a</strong> — crea el colegio en ELIAS por primera vez y con eso queda como su panel maestro. El resto de perfiles (Secretaría, docentes…) se crean después, desde adentro.</p>
+      <div class="field"><label>Nombre del colegio</label><input type="text" id="ci-nombre" placeholder="Institución Educativa…"></div>
+      <div class="grid2">
+        <div class="field"><label>Código DANE (si lo tienes)</label><input type="text" id="ci-dane" placeholder="Opcional"></div>
+        <div class="field"><label>Ciudad / municipio</label><input type="text" id="ci-ciudad" placeholder="Ej. Bogotá"></div>
+      </div>
+      <div class="field"><label>Tu nombre completo (Rector/a)</label><input type="text" id="ci-rector" placeholder="Nombre y apellidos"></div>
+      <div class="field"><label>Tu correo electrónico</label><input type="email" id="ci-correo" placeholder="Cualquier correo — Gmail, Yahoo, institucional"></div>
+      <div class="grid2">
+        <div class="field"><label>Contraseña</label><input type="password" id="ci-pass" placeholder="••••••••"></div>
+        <div class="field"><label>Confirmar contraseña</label><input type="password" id="ci-pass2" placeholder="••••••••"></div>
+      </div>
+      <div class="checkline">
+        <input type="checkbox" id="ci-terms">
+        <span>Acepto los <a class="link" href="#" onclick="Elias.go('terminos');return false;">Términos de uso</a> y la <a class="link" href="#" onclick="Elias.go('privacidad');return false;">Política de protección de datos</a>, en nombre del colegio.</span>
+      </div>
+      <button class="btn btn-primary" onclick="Elias.crearInstitucion()">Crear institución y entrar</button>
+      <p class="small">Este colegio queda como un registro único e independiente — sus datos nunca se mezclan con los de otro colegio en ELIAS.</p>
+    </div>
+  </section>
+
+  <!-- CAMBIAR CLAVE TEMPORAL (primer ingreso) -->
+  <section class="screen" id="screen-cambiarclave">
+    <div class="topbar"><img src="icon-elias.png" alt="ELIAS"><h1>Cambia tu clave</h1></div>
+    <div class="wrap">
+      <p class="lead">Entraste con una clave temporal. Antes de seguir, escribe la clave que vas a usar de ahora en adelante.</p>
+      <div class="field"><label>Clave nueva</label><input type="password" id="cc-nueva" placeholder="Mínimo 6 caracteres"></div>
+      <div class="field"><label>Repite la clave nueva</label><input type="password" id="cc-nueva2" placeholder="••••••••"></div>
+      <button class="btn btn-primary" onclick="Elias.cambiarClave()">Guardar y entrar</button>
+    </div>
+  </section>
+
+  <!-- ONBOARDING / TUTORIAL POR VOZ -->
+  <section class="screen" id="screen-onboarding">
+    <div class="topbar"><img src="icon-elias.png" alt="ELIAS"><h1>Tutorial guiado</h1></div>
+    <div class="wrap">
+      <div class="step-dots" id="ob-dots"></div>
+
+      <div class="step active" data-step="0">
+        <div class="card">
+          <span class="pill">Paso 1 de 5</span>
+          <h2 style="margin-top:8px">Bienvenido a ELIAS</h2>
+          <p class="lead">Este tutorial te explica, con voz, dónde está cada cosa y cómo se usa. No es la IA de ELIAS — es solo una guía de explicación, la puedes repetir cuando quieras desde tu perfil.</p>
+        </div>
+        <div class="mic-row">
+          <div class="mic-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg></div>
+          <div style="flex:1"><p style="margin:0;font-size:12.5px;font-weight:600">Explicación por voz</p><p class="small" style="margin:0">Se reproduce sola — toca repetir si no la escuchaste</p></div>
+          <button class="btn btn-ghost btn-sm" onclick="Elias.speakStep(0, true)">🔁 Repetir</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="1">
+        <div class="card">
+          <span class="pill">Paso 2 de 5</span>
+          <h2 style="margin-top:8px">Inicio</h2>
+          <p class="lead">Desde Inicio ves un resumen de lo tuyo: tus cursos o asignaturas si eres docente, tus estudiantes si eres acudiente, o los indicadores del colegio si eres directivo.</p>
+        </div>
+        <div class="mic-row">
+          <div class="mic-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg></div>
+          <div style="flex:1"><p style="margin:0;font-size:12.5px;font-weight:600">Explicación por voz</p><p class="small" style="margin:0">Se reproduce sola — toca repetir si no la escuchaste</p></div>
+          <button class="btn btn-ghost btn-sm" onclick="Elias.speakStep(1, true)">🔁 Repetir</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="2">
+        <div class="card">
+          <span class="pill">Paso 3 de 5</span>
+          <h2 style="margin-top:8px">Gestión</h2>
+          <p class="lead">Aquí están las funciones de tu perfil: notas, asistencia, convivencia, orientación o lo administrativo, según tu rol. Cada tarjeta te lleva directo a esa función.</p>
+        </div>
+        <div class="mic-row">
+          <div class="mic-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg></div>
+          <div style="flex:1"><p style="margin:0;font-size:12.5px;font-weight:600">Explicación por voz</p><p class="small" style="margin:0">Se reproduce sola — toca repetir si no la escuchaste</p></div>
+          <button class="btn btn-ghost btn-sm" onclick="Elias.speakStep(2, true)">🔁 Repetir</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="3">
+        <div class="card">
+          <span class="pill">Paso 4 de 5</span>
+          <h2 style="margin-top:8px">Avisos</h2>
+          <p class="lead">Aquí llegan tus notificaciones y el banner general del colegio. Puedes enviar notificaciones a quien te corresponda según tu perfil, desde el botón de nuevo comunicado.</p>
+        </div>
+        <div class="mic-row">
+          <div class="mic-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg></div>
+          <div style="flex:1"><p style="margin:0;font-size:12.5px;font-weight:600">Explicación por voz</p><p class="small" style="margin:0">Se reproduce sola — toca repetir si no la escuchaste</p></div>
+          <button class="btn btn-ghost btn-sm" onclick="Elias.speakStep(3, true)">🔁 Repetir</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="4">
+        <div class="card">
+          <span class="pill">Paso 5 de 5</span>
+          <h2 style="margin-top:8px">Perfil</h2>
+          <p class="lead">Aquí editas tus datos, configuras tu cuenta y puedes volver a ver este tutorial cuando quieras. ¡Listo! Ya puedes empezar a usar ELIAS.</p>
+        </div>
+        <div class="mic-row">
+          <div class="mic-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg></div>
+          <div style="flex:1"><p style="margin:0;font-size:12.5px;font-weight:600">Explicación por voz</p><p class="small" style="margin:0">Se reproduce sola — toca repetir si no la escuchaste</p></div>
+          <button class="btn btn-ghost btn-sm" onclick="Elias.speakStep(4, true)">🔁 Repetir</button>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:auto">
+        <button class="btn btn-ghost" onclick="Elias.obPrev()">Atrás</button>
+        <button class="btn btn-primary" id="ob-next" onclick="Elias.obNext()">Siguiente</button>
+      </div>
+      <a class="link" style="text-align:center" href="#" onclick="Elias.go('dashboard');return false;">Saltar tutorial</a>
+    </div>
+  </section>
+
+  <!-- REGISTRO DOCENTE -->
+  <section class="screen" id="screen-registro">
+    <div class="topbar"><img src="icon-elias.png" alt="ELIAS"><h1>Registro de docente</h1></div>
+    <div class="wrap">
+      <p class="lead">Lo diligencia Secretaría (o Rector) al crear la cuenta del docente.</p>
+      <div class="field"><label>Nombre completo</label><input type="text" id="reg-nombre" placeholder="Nombre y apellidos"></div>
+      <div class="field"><label>Correo electrónico</label><input type="email" id="reg-correo" placeholder="cualquier correo — Gmail, Yahoo, institucional"></div>
+      <div class="grid2">
+        <div class="field"><label>Número de documento</label><input type="text" id="reg-doc" placeholder="CC / CE"></div>
+        <div class="field"><label>Fecha de nacimiento</label><input type="date" id="reg-fecha"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Teléfono</label><input type="tel" id="reg-tel" placeholder="+57 300 000 0000"></div>
+        <div class="field">
+          <label>Idioma de trabajo</label>
+          <select id="reg-idioma">
+            <option>Español</option>
+            <option>Inglés</option>
+            <option>Español e inglés (bilingüe)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Sede</label>
+        <select id="reg-sede">
+          <option>Sede Central</option>
+        </select>
+        <p class="small" style="margin:4px 0 0">Se llena con las sedes que la Rectora registre en Perfil institucional.</p>
+      </div>
+      <div class="field">
+        <label>Tipo de docente</label>
+        <select id="reg-tipo" onchange="Elias.regTipoChange()">
+          <option value="area">Por área / asignatura</option>
+          <option value="multigrado">Multigrado (un docente, varios grados)</option>
+          <option value="pta">PTA (Programa Todos a Aprender)</option>
+        </select>
+      </div>
+      <div class="field" id="reg-campo-area">
+        <label>Asignatura(s) que dicta</label>
+        <input type="text" id="reg-asignaturas" placeholder="Ej: Matemáticas, Ciencias naturales">
+        <label style="margin-top:10px;display:block">Grados y cursos donde dicta esa(s) asignatura(s)</label>
+        <input type="text" id="reg-grados-area" placeholder="Ej: 6°A, 7°B, 8°A">
+        <p class="small" style="margin:4px 0 0">Con esto, ELIAS arma solo el listado de sus estudiantes en cada curso.</p>
+      </div>
+      <div class="field" id="reg-campo-multigrado" style="display:none">
+        <label>Grados a cargo (dicta todas las asignaturas a ese grupo)</label>
+        <input type="text" id="reg-grados-multigrado" placeholder="Ej: 1°, 2° y 3° (escuela rural / multigrado)">
+      </div>
+      <div class="field">
+        <label>Clave temporal</label>
+        <div class="row" style="gap:8px">
+          <input type="text" id="reg-pass" placeholder="Se genera al dar clic" readonly style="flex:1">
+          <button type="button" class="btn btn-ghost" onclick="Elias.generarClaveTemporal()">Generar</button>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="Elias.registrarDocente()">Crear cuenta</button>
+      <p class="small">Dale al docente su correo y esta clave — debe cambiarla en su primer ingreso.</p>
+    </div>
+  </section>
+
+  <!-- TERMINOS -->
+  <section class="screen" id="screen-terminos">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button></div>
+    <div class="wrap doc">
+      <h2>Términos de uso</h2>
+      <p class="lead">Borrador inicial — lo revisa el colegio antes de publicarlo.</p>
+      <h3>1. Qué es ELIAS</h3>
+      <p>ELIAS es una herramienta de apoyo a la gestión escolar (académica, convivencia, orientación escolar y administrativa) del colegio que la contrata. No reemplaza la plataforma oficial de calificaciones ni los sistemas de información obligatorios del Ministerio de Educación (SIMAT y similares); ELIAS se usa como complemento.</p>
+      <h3>2. Cuentas y perfiles</h3>
+      <p>Cada persona accede con la cuenta que le crea el colegio. El colegio (a través del Rector o quien delegue) es responsable de mantener actualizado quién tiene acceso y a qué información.</p>
+      <h3>3. Uso de la inteligencia artificial</h3>
+      <p>La IA de ELIAS es un apoyo de redacción y organización, únicamente por texto. No diagnostica, no decide clasificaciones de convivencia ni reemplaza el criterio profesional de docentes, orientación o directivos — toda decisión final la toma una persona.</p>
+      <h3>4. Responsabilidad de la información</h3>
+      <p>La información académica oficial (notas para reporte ante la Secretaría de Educación) se sube a la plataforma oficial del colegio; ELIAS únicamente ayuda a organizarla y exportarla.</p>
+      <h3>5. Cambios</h3>
+      <p>El colegio será notificado ante cambios sustanciales a estos términos.</p>
+    </div>
+  </section>
+
+  <!-- PRIVACIDAD -->
+  <section class="screen" id="screen-privacidad">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button></div>
+    <div class="wrap doc">
+      <h2>Política de protección de datos</h2>
+      <p class="lead">Marco: Ley 1581 de 2012 y Decreto 1377 de 2013 (Habeas Data, Colombia) — borrador inicial para revisión del colegio.</p>
+      <h3>1. Datos que se tratan</h3>
+      <p>Datos de identificación y contacto de estudiantes, acudientes y personal del colegio (nombre, documento, fecha de nacimiento, teléfono, correo); datos académicos y de convivencia; y, cuando aplica, datos sensibles de salud o discapacidad para PIAR/DUA, con el debido soporte y consentimiento.</p>
+      <h3>2. Datos de niños, niñas y adolescentes</h3>
+      <p>Al tratarse de datos de menores de edad, prevalece su interés superior. Los datos de estudiantes se recogen con el consentimiento del acudiente y se usan únicamente con fines de seguimiento educativo dentro del colegio.</p>
+      <h3>3. Dónde se guardan</h3>
+      <p>Los datos se guardan en la base de datos institucional (aislada por colegio) y, cuando el Rector lo configure, también en el almacenamiento externo (Drive/servidor) que el colegio elija.</p>
+      <h3>4. Quién puede ver qué</h3>
+      <p>Cada perfil ve solo la información que le corresponde a su rol, según se describe en el plan de construcción de la app.</p>
+      <h3>5. Derechos de los titulares</h3>
+      <p>Todo acudiente, estudiante mayor de edad o miembro del personal puede solicitar al colegio conocer, actualizar, rectificar o suprimir sus datos, conforme a la Ley 1581 de 2012.</p>
+      <h3>6. Responsable del tratamiento</h3>
+      <p>El colegio que contrata ELIAS es el responsable del tratamiento de los datos; ELIAS actúa como encargado técnico.</p>
+    </div>
+  </section>
+
+  <!-- DASHBOARD PLACEHOLDER -->
+  <section class="screen" id="screen-dashboard">
+    <div class="topbar"><img src="icon-elias.png" alt="ELIAS"><h1>ELIAS</h1></div>
+    <div id="demo-switcher">
+    <p class="small" style="padding:0 22px;margin:0 0 6px">Vista de prueba — selecciona un perfil (solo aparece si no iniciaste sesión real):</p>
+    <div class="role-switch"><button class="role-btn on" data-role="rector" onclick="Elias.setRole('rector')">Rector / Director</button>
+<button class="role-btn" data-role="secretaria" onclick="Elias.setRole('secretaria')">Secretaría</button>
+<button class="role-btn" data-role="docente" onclick="Elias.setRole('docente')">Docente</button>
+<button class="role-btn" data-role="orientador" onclick="Elias.setRole('orientador')">Orientación escolar</button>
+<button class="role-btn" data-role="padre" onclick="Elias.setRole('padre')">Padre / Acudiente</button>
+<button class="role-btn" data-role="estudiante" onclick="Elias.setRole('estudiante')">Estudiante</button>
+<button class="role-btn" data-role="coordacad" onclick="Elias.setRole('coordacad')">Coordinador/a Académico</button>
+<button class="role-btn" data-role="coordconv" onclick="Elias.setRole('coordconv')">Coordinador/a de Convivencia</button></div>
+    </div>
+    <div class="wrap" style="padding-top:4px">
+      <div class="dash-role active" data-role-panel="rector">
+<div class="dash-scope">
+<div class="card">
+      <div class="row">
+        <div>
+          <p class="card-title">Colegio San Rafael</p>
+          <p class="card-sub">3 sedes · datos institucionales</p>
+        </div>
+        <button class="btn btn-ghost">Editar logo</button>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi"><p class="kpi-num">842</p><p class="kpi-label">Estudiantes</p></div>
+      <div class="kpi"><p class="kpi-num">56</p><p class="kpi-label">Docentes</p></div>
+      <div class="kpi"><p class="kpi-num">3</p><p class="kpi-label">Sedes</p></div>
+      <div class="kpi"><p class="kpi-num">4.2%</p><p class="kpi-label">Deserción</p></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Informe consolidado</p>
+      <p class="card-sub">Generado por IA con los datos de las 4 gestiones</p>
+      <div class="row">
+        <button class="btn btn-ghost" style="flex:1">Por sede</button>
+        <button class="btn btn-primary" style="flex:1">Global</button>
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title">Las 4 gestiones</p>
+      <div class="list-row"><span class="dot" style="background:#15223A"></span><span style="flex:1;font-size:13px">Académica</span></div>
+      <div class="list-row"><span class="dot" style="background:#1F8078"></span><span style="flex:1;font-size:13px">Convivencia</span></div>
+      <div class="list-row"><span class="dot" style="background:#E5A23C"></span><span style="flex:1;font-size:13px">Orientación escolar</span></div>
+      <div class="list-row" style="border-bottom:none"><span class="dot" style="background:#59698A"></span><span style="flex:1;font-size:13px">Administrativa</span></div>
+    </div>
+</div>
+</div>
+<div class="dash-role" data-role-panel="secretaria">
+<div class="dash-scope">
+<div class="card">
+      <p class="card-title">Fechas de corte</p>
+      <p class="card-sub">Periodo 3 · próximo corte 30 oct 2026</p>
+      <button class="btn btn-primary" style="align-self:flex-start">Programar</button>
+    </div>
+    <div class="card">
+      <div class="row">
+        <p class="card-title" style="margin:0">Pre-informe académico</p>
+        <span class="pill pill-teal">Listo</span>
+      </div>
+      <p class="card-sub">Generado por IA con los registros de los docentes</p>
+      <button class="btn btn-primary" style="align-self:flex-start">Revisar y publicar</button>
+    </div>
+    <div class="card">
+      <p class="card-title">Matrículas y deserción</p>
+      <p class="card-sub">Según lo reportado por los docentes</p>
+      <div class="kpi-row">
+        <div class="kpi"><p class="kpi-num">812</p><p class="kpi-label">Matriculados</p></div>
+        <div class="kpi"><p class="kpi-num">4.2%</p><p class="kpi-label">Deserción</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title">Notificar</p>
+      <div class="row" style="gap:8px">
+        <span class="chip">Padres</span>
+        <span class="chip">Docentes</span>
+        <span class="chip">Estudiantes</span>
+      </div>
+      <button class="btn btn-primary" style="align-self:flex-start">Nuevo comunicado</button>
+    </div>
+</div>
+</div>
+<div class="dash-role" data-role-panel="docente">
+<div class="dash-scope">
+<div class="card">
+      <p class="card-title">Mis cursos</p>
+      <div class="list-row"><span>6°A · Matemáticas</span><span style="color:#59698A">28 est.</span></div>
+      <div class="list-row"><span>7°B · Matemáticas</span><span style="color:#59698A">31 est.</span></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Asistencia de hoy</p>
+      <p class="card-sub">6°A · Matemáticas · 7:00 a.m.</p>
+      <button class="btn btn-primary btn-block">Tomar asistencia</button>
+    </div>
+    <div class="card">
+      <div class="row">
+        <p class="card-title" style="margin:0">Crear actividad</p>
+        <span class="pill pill-amber">IA</span>
+      </div>
+      <p class="card-sub">Evaluaciones, refuerzo y actividades complementarias</p>
+      <div class="row">
+        <button class="btn btn-ghost" style="flex:1">Evaluación en línea</button>
+        <button class="btn btn-primary" style="flex:1">Refuerzo</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <p class="card-title" style="margin:0">Convivencia</p>
+        <span class="pill pill-amber">IA</span>
+      </div>
+      <p class="card-sub">Registra una situación — el tipo lo eliges tú, la IA solo ayuda a redactar el hecho</p>
+      <div class="type-row">
+        <div class="type-chip t1">Tipo 1</div>
+        <div class="type-chip t2">Tipo 2</div>
+        <div class="type-chip t3">Tipo 3</div>
+      </div>
+      <button class="btn btn-primary btn-block">Registrar situación</button>
+    </div>
+    <div class="card">
+      <p class="card-title">Observador del estudiante</p>
+      <p class="card-sub">Anota un evento del día — se conecta al historial del estudiante</p>
+      <button class="btn btn-ghost btn-block">Nueva anotación</button>
+    </div>
+    <div class="card">
+      <p class="card-title">Acompañamiento pedagógico</p>
+      <p class="card-sub">Sofía R. · 6°A · reporte pendiente</p>
+      <button class="btn btn-ghost btn-block">Completar Anexo 2</button>
+    </div>
+</div>
+</div>
+<div class="dash-role" data-role-panel="orientador">
+<div class="dash-scope">
+<div class="card">
+      <p class="card-title">Casos activos</p>
+      <div class="list-row"><span>Sofía R. · 6°A</span><span class="pill pill-teal">PIAR</span></div>
+      <div class="list-row"><span>Andrés M. · 8°B</span><span class="pill pill-amber">DUA</span></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Notificación nueva</p>
+      <p class="card-sub">Anexo 2 de 6°A · acompañamiento pedagógico</p>
+      <button class="btn btn-primary" style="align-self:flex-start">Ver reporte</button>
+    </div>
+    <div class="card">
+      <p class="card-title">Consolidados</p>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-ghost btn-sm">PIAR</button>
+        <button class="btn btn-ghost btn-sm">Convivencia</button>
+        <button class="btn btn-ghost btn-sm">Atención a padres</button>
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title">Convivencia reciente</p>
+      <div class="list-row"><span>Juan P. · 6°B</span><span class="pill pill-ink">Tipo 1</span></div>
+      <div class="list-row"><span>Laura G. · 7°A</span><span class="pill pill-amber">Tipo 2</span></div>
+    </div>
+</div>
+</div>
+<div class="dash-role" data-role-panel="padre">
+<div class="dash-scope">
+<div class="card">
+      <p class="card-title">Camila Torres · 6°A</p>
+      <div class="kpi-row">
+        <div class="kpi"><p class="kpi-num">96%</p><p class="kpi-label">Asistencia</p></div>
+        <div class="kpi"><p class="kpi-num">4.2</p><p class="kpi-label">Promedio</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title">Actividad de refuerzo</p>
+      <p class="card-sub">Matemáticas · vence el 24 de septiembre</p>
+      <button class="btn btn-primary" style="align-self:flex-start">Ver detalle</button>
+    </div>
+    <div class="card">
+      <p class="card-title">Convivencia</p>
+      <div class="ok-row">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+        Sin faltas registradas este periodo
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title">Notificaciones recientes</p>
+      <div class="list-row">Reunión de padres · 6°A</div>
+      <div class="list-row">Citación con orientación escolar</div>
+    </div>
+</div>
+</div>
+<div class="dash-role" data-role-panel="estudiante">
+<div class="dash-scope">
+<div class="card">
+      <p class="card-title">Evaluación pendiente</p>
+      <p class="card-sub">Matemáticas · selección múltiple</p>
+      <div class="timer">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
+        20 min · 2 intentos
+      </div>
+      <button class="btn btn-primary btn-block">Comenzar</button>
+    </div>
+    <div class="card">
+      <p class="card-title">Mis tareas</p>
+      <div class="list-row"><span>Ensayo de Sociales</span><span style="color:#59698A">vence mañana</span></div>
+      <div class="list-row"><span>Taller de Química</span><span style="color:#59698A">vence viernes</span></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Mis notas</p>
+      <div class="row"><span style="font-size:12px">Matemáticas</span><span style="font-size:12px;font-weight:700">4.5</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:90%;background:#1F8078"></div></div>
+      <div class="row"><span style="font-size:12px">Ciencias</span><span style="font-size:12px;font-weight:700">4.0</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:80%;background:#E5A23C"></div></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Actividad de refuerzo</p>
+      <p class="card-sub">Matemáticas · asignada por tu docente</p>
+      <button class="btn btn-ghost btn-block">Responder</button>
+    </div>
+</div>
+</div>
+<div class="dash-role" data-role-panel="coordacad">
+<div class="dash-scope">
+<div class="card">
+      <p class="card-title">Resultados por grado y sede</p>
+      <div class="kpi-row">
+        <div class="kpi"><p class="kpi-num">4.1</p><p class="kpi-label">Promedio general</p></div>
+        <div class="kpi"><p class="kpi-num">6.2%</p><p class="kpi-label">Pérdida asignatura</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <p class="card-title" style="margin:0">Pre-informe académico</p>
+        <span class="pill pill-teal">Por revisar</span>
+      </div>
+      <p class="card-sub">Generado por IA con los registros de los docentes — pasa a Secretaría después de tu revisión</p>
+      <button class="btn btn-primary btn-block">Revisar</button>
+    </div>
+    <div class="card">
+      <p class="card-title">Promoción y reprobación</p>
+      <div class="list-row"><span>Andrés M. · 8°B</span><span class="pill pill-amber">En riesgo</span></div>
+      <div class="list-row"><span>Laura G. · 7°A</span><span class="pill pill-amber">En riesgo</span></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Planeación curricular</p>
+      <p class="card-sub">Horarios, mallas y seguimiento a docentes por asignatura</p>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-ghost btn-sm">Horarios</button>
+        <button class="btn btn-ghost btn-sm">Mallas</button>
+        <button class="btn btn-ghost btn-sm">Docentes</button>
+      </div>
+    </div>
+</div>
+</div>
+<div class="dash-role" data-role-panel="coordconv">
+<div class="dash-scope">
+<div class="card">
+      <p class="card-title">Casos activos del comité</p>
+      <div class="list-row"><span>Juan P. · 6°B</span><span class="pill pill-amber">Tipo 2</span></div>
+      <div class="list-row"><span>Laura G. · 7°A</span><span class="pill pill-red">Tipo 3</span></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Ruta de atención integral</p>
+      <p class="card-sub">Laura G. · Tipo 3 · siguiente paso: remisión a Comisaría de Familia</p>
+      <button class="btn btn-primary btn-block">Continuar protocolo</button>
+    </div>
+    <div class="card">
+      <p class="card-title">Patrones por curso y sede</p>
+      <div class="list-row"><span>6°B · Sede Central</span><span style="color:#59698A">3 casos este periodo</span></div>
+      <div class="list-row"><span>8°A · Sede Norte</span><span style="color:#59698A">1 caso este periodo</span></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Articulación con Orientación</p>
+      <p class="card-sub">Seguimiento psicosocial conjunto de los casos abiertos</p>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-ghost btn-sm">Ver casos</button>
+        <button class="btn btn-ghost btn-sm">Comité</button>
+      </div>
+    </div>
+</div>
+</div>
+
+    </div>
+    <div class="navbar" style="max-width:460px;margin:0 auto;width:100%;position:sticky;bottom:0;">
+      <div class="navitem active" onclick="Elias.dashTab('inicio', event)">Inicio</div>
+      <div class="navitem" onclick="Elias.dashTab('gestion', event)">Gestión</div>
+      <div class="navitem" onclick="Elias.go('notificaciones')">Avisos</div>
+      <div class="navitem" onclick="Elias.go('perfilusuario')">Perfil</div>
+    </div>
+  
+
+  <!-- AVISOS / NOTIFICACIONES -->
+  <section class="screen" id="screen-notificaciones">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Nuevo comunicado</h1></div>
+    <div class="wrap">
+      <div class="dash-scope">
+<div class="card">
+      <p class="card-title">Filtrar por</p>
+      <div class="filter-grid">
+        <div class="filter-chip active">Mi curso</div>
+        <div class="filter-chip">Toda la sede</div>
+        <div class="filter-chip">Un docente</div>
+        <div class="filter-chip">Un estudiante</div>
+      </div>
+    </div>
+    <div class="directory">
+      <div class="dir-head">6°A · Matemáticas (2 seleccionados)</div>
+      <div class="dir-list">
+        <div class="dir-row">
+          <div class="avatar">CT</div>
+          <div class="dir-info"><span class="dir-name">Camila Torres</span><span class="dir-meta">Acudiente: Marta Torres</span></div>
+          <div class="check on"></div>
+        </div>
+        <div class="dir-row">
+          <div class="avatar">SR</div>
+          <div class="dir-info"><span class="dir-name">Sofía Ramírez</span><span class="dir-meta">Acudiente: Pedro Ramírez</span></div>
+          <div class="check on"></div>
+        </div>
+        <div class="dir-row">
+          <div class="avatar">AM</div>
+          <div class="dir-info"><span class="dir-name">Andrés Morales</span><span class="dir-meta">Acudiente: Laura Morales</span></div>
+          <div class="check"></div>
+        </div>
+        <div class="dir-row">
+          <div class="avatar">JP</div>
+          <div class="dir-info"><span class="dir-name">Juan Pérez</span><span class="dir-meta">Acudiente: Ana Pérez</span></div>
+          <div class="check"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title" style="margin:0">Mensaje</p>
+      <div class="field" style="height:52px">Reunión de padres el próximo viernes a las 3:00 p.m…</div>
+    </div>
+    <button class="btn btn-primary btn-block">Enviar notificación</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERFIL DE USUARIO -->
+  <section class="screen" id="screen-perfilusuario">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Mi perfil</h1></div>
+    <div class="wrap">
+      <div class="card">
+        <p class="card-title" style="margin:0 0 4px">Datos de la cuenta</p>
+        <p class="small" id="pu-name">—</p>
+        <p class="small" id="pu-role">—</p>
+      </div>
+      <button class="btn btn-ghost" onclick="Elias.go('onboarding');Elias.obReset();">Ver tutorial de nuevo</button>
+      <button class="btn btn-ghost" onclick="Elias.go('terminos')">Términos de uso</button>
+      <button class="btn btn-ghost" onclick="Elias.go('privacidad')">Protección de datos</button>
+      <button class="btn btn-primary" onclick="Elias.go('login')">Cerrar sesión</button>
+    </div>
+  </section>
+
+  <!-- PLANILLA DE CALIFICACIONES -->
+  <section class="screen" id="screen-planilla">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Planilla de calificaciones</h1></div>
+    <div class="wrap">
+      <div class="dash-scope">
+<div class="toggle">
+      <div class="toggle-opt">Mis cursos</div>
+      <div class="toggle-opt active">Mis asignaturas</div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <p class="card-title" style="margin:0">Español · varios cursos</p>
+        <span class="chip chip-teal">Por área</span>
+      </div>
+      <p class="card-sub">38 estudiantes · 6°A, 7°B y 8°A, cada uno en su propia planilla de Español</p>
+    </div>
+    <div class="period-tabs">
+      <div class="period-tab">Periodo 1</div>
+      <div class="period-tab">Periodo 2</div>
+      <div class="period-tab active">Periodo 3</div>
+      <div class="period-tab">Periodo 4</div>
+    </div>
+    <div class="table-wrap">
+      <div class="t-head"><span>Estudiante</span><span>N1</span><span>N2</span><span>N3</span><span>N4</span><span>Final</span></div>
+      <div class="t-body">
+        <div class="t-row">
+          <div class="stu-name">Camila Torres<span class="grade-tag">6°A</span></div>
+          <input class="note-input" value="4.5"><input class="note-input" value="4.2"><input class="note-input empty" placeholder="—"><input class="note-input empty" placeholder="—">
+          <span class="final-note">4.4</span>
+        </div>
+        <div class="t-row">
+          <div class="stu-name">Sofía Ramírez<span class="grade-tag">6°A</span></div>
+          <input class="note-input" value="3.8"><input class="note-input" value="4.0"><input class="note-input" value="3.6"><input class="note-input empty" placeholder="—">
+          <span class="final-note">3.8</span>
+        </div>
+        <div class="t-row">
+          <div class="stu-name">Andrés Morales<span class="grade-tag">7°B</span></div>
+          <input class="note-input" value="4.1"><input class="note-input empty" placeholder="—"><input class="note-input empty" placeholder="—"><input class="note-input empty" placeholder="—">
+          <span class="final-note">4.1</span>
+        </div>
+        <div class="t-row">
+          <div class="stu-name">Juan Pérez<span class="grade-tag">7°B</span></div>
+          <input class="note-input" value="4.6"><input class="note-input" value="4.8"><input class="note-input" value="4.5"><input class="note-input" value="4.7">
+          <span class="final-note">4.65</span>
+        </div>
+        <div class="t-row">
+          <div class="stu-name">Laura Gómez<span class="grade-tag">8°A</span></div>
+          <input class="note-input" value="3.5"><input class="note-input" value="3.9"><input class="note-input empty" placeholder="—"><input class="note-input empty" placeholder="—">
+          <span class="final-note">3.7</span>
+        </div>
+      </div>
+    </div>
+    <p class="hint">El promedio final se calcula solo con las casillas que uses — no divide entre 4 si no las llenas todas.</p>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-ghost">Descargar PDF</button>
+      <button class="btn btn-primary">Descargar Excel</button>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERFIL INSTITUCIONAL -->
+  <section class="screen" id="screen-perfilinstitucional">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Perfil institucional</h1></div>
+    <div class="wrap">
+      <div class="dash-scope">
+<div class="card">
+      <div class="logo-row">
+        <div class="logo-box">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#59698A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5-9 9"/></svg>
+        </div>
+        <div style="flex:1">
+          <p class="card-title" style="margin:0 0 2px">Logo institucional</p>
+          <p class="card-sub">PNG o SVG, fondo transparente</p>
+        </div>
+        <button class="btn btn-ghost">Cambiar</button>
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title">Misión, visión y PEI</p>
+      <span class="field-label">Misión</span>
+      <div class="field" style="height:34px">Formar estudiantes íntegros, críticos…</div>
+      <span class="field-label">PEI</span>
+      <div class="row">
+        <span class="card-sub">PEI_ColegioSanRafael_2026.pdf</span>
+        <button class="btn btn-ghost">Ver</button>
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title">Sistema de evaluación</p>
+      <p class="card-sub">Lo define Coordinación Académica, en Gestión → Sistema de evaluación</p>
+    </div>
+    <div class="card">
+      <p class="card-title">Almacenamiento</p>
+      <div class="switch-row">
+        <div class="switch-label"><span class="switch-name">Supabase Storage</span><span class="switch-sub">Predeterminado</span></div>
+        <div class="switch"></div>
+      </div>
+      <div class="switch-row">
+        <div class="switch-label"><span class="switch-name">Drive / servidor propio</span><span class="switch-sub">Conectar almacenamiento externo</span></div>
+        <button class="btn btn-ghost">Conectar</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <p class="card-title" style="margin:0">Calendario escolar</p>
+        <span class="pill">Editable</span>
+      </div>
+      <p class="card-sub">Festividades por defecto, fechas de corte y recordatorios automáticos</p>
+      <button class="btn btn-ghost" style="align-self:flex-start">Configurar calendario</button>
+    </div>
+    <div class="card">
+      <p class="card-title">Sedes</p>
+      <div class="row"><span class="card-sub">Sede Central · 412 est.</span><span class="pill">Activa</span></div>
+      <div class="row"><span class="card-sub">Sede Norte · 268 est.</span><span class="pill">Activa</span></div>
+      <div class="row"><span class="card-sub">Sede Rural · 162 est.</span><span class="pill">Activa</span></div>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SISTEMA DE EVALUACIÓN (Coordinación Académica) -->
+  <section class="screen" id="screen-sistemaeval">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Sistema de evaluación</h1></div>
+    <div class="wrap">
+      <p class="lead">Lo define Coordinación Académica. Se aplica por defecto a todos los docentes del colegio.</p>
+      <div class="dash-scope">
+    <div class="card">
+      <p class="card-title">Escala de valoración</p>
+      <p class="card-sub">Cada docente califica con esta escala en su planilla</p>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-primary" style="flex:1" onclick="Elias.setEscala('numerico', event)">Numérico (1 a 5)</button>
+        <button class="btn btn-ghost" style="flex:1" onclick="Elias.setEscala('letras', event)">Por letras</button>
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title">Casillas de nota por periodo</p>
+      <p class="card-sub">Máximo 4 por asignatura y periodo — el docente puede usar menos; el promedio final solo cuenta las que use</p>
+    </div>
+    <div class="card">
+      <p class="card-title">Ponderación del puesto</p>
+      <p class="card-sub">Con esto, ELIAS calcula el puesto de cada estudiante en su curso y en el colegio, por periodo</p>
+      <div class="grid2">
+        <div class="field"><label>Académico</label><input type="number" id="pond-academico" value="80" min="0" max="100" onchange="Elias.pondCheck()"> %</div>
+        <div class="field"><label>Comportamiento</label><input type="number" id="pond-comportamiento" value="20" min="0" max="100" onchange="Elias.pondCheck()"> %</div>
+      </div>
+      <p class="small" id="pond-aviso"></p>
+    </div>
+      </div>
+      <button class="btn btn-primary" onclick="Elias.back()">Guardar</button>
+    </div>
+  </section>
+
+  <!-- COMPORTAMIENTO (director de grupo) -->
+  <section class="screen" id="screen-comportamiento">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Comportamiento</h1></div>
+    <div class="wrap">
+      <p class="lead">La califica el director de grupo, con la misma escala del colegio. Entra al ponderado del puesto.</p>
+      <div class="dash-scope">
+    <div class="period-tabs">
+      <div class="period-tab">Periodo 1</div>
+      <div class="period-tab">Periodo 2</div>
+      <div class="period-tab active">Periodo 3</div>
+      <div class="period-tab">Periodo 4</div>
+    </div>
+    <div class="table-wrap">
+      <div class="t-head"><span>Estudiante</span><span>Comportamiento</span></div>
+      <div class="t-body">
+        <div class="t-row" style="grid-template-columns:1fr 90px">
+          <div class="stu-name">Camila Torres<span class="grade-tag">6°A</span></div>
+          <input class="note-input" value="4.8">
+        </div>
+        <div class="t-row" style="grid-template-columns:1fr 90px">
+          <div class="stu-name">Sofía Ramírez<span class="grade-tag">6°A</span></div>
+          <input class="note-input" value="4.2">
+        </div>
+        <div class="t-row" style="grid-template-columns:1fr 90px">
+          <div class="stu-name">Andrés Morales<span class="grade-tag">6°A</span></div>
+          <input class="note-input" value="3.9">
+        </div>
+      </div>
+    </div>
+      </div>
+      <button class="btn btn-primary">Guardar comportamiento</button>
+    </div>
+  </section>
+
+  <!-- PUESTO (ranking por curso y colegio) -->
+  <section class="screen" id="screen-puesto">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Puesto</h1></div>
+    <div class="wrap">
+      <p class="lead">Ponderado = Académico + Comportamiento, según lo que definió Coordinación Académica. Se recalcula solo, por periodo.</p>
+      <div class="dash-scope">
+    <div class="period-tabs">
+      <div class="period-tab">Periodo 1</div>
+      <div class="period-tab">Periodo 2</div>
+      <div class="period-tab active">Periodo 3</div>
+      <div class="period-tab">Periodo 4</div>
+    </div>
+    <div class="table-wrap">
+      <div class="t-head"><span>Estudiante</span><span>Académico</span><span>Comport.</span><span>Ponderado</span><span>Puesto curso</span></div>
+      <div class="t-body">
+        <div class="t-row" style="grid-template-columns:1.4fr .8fr .8fr .8fr .8fr">
+          <div class="stu-name">Juan Pérez<span class="grade-tag">7°B</span></div>
+          <span class="final-note">4.65</span><span class="final-note">4.9</span><span class="final-note">4.70</span>
+          <span class="chip chip-teal">1° en 7°B</span>
+        </div>
+        <div class="t-row" style="grid-template-columns:1.4fr .8fr .8fr .8fr .8fr">
+          <div class="stu-name">Camila Torres<span class="grade-tag">6°A</span></div>
+          <span class="final-note">4.4</span><span class="final-note">4.8</span><span class="final-note">4.48</span>
+          <span class="chip chip-teal">1° en 6°A</span>
+        </div>
+        <div class="t-row" style="grid-template-columns:1.4fr .8fr .8fr .8fr .8fr">
+          <div class="stu-name">Andrés Morales<span class="grade-tag">7°B</span></div>
+          <span class="final-note">4.1</span><span class="final-note">3.9</span><span class="final-note">4.06</span>
+          <span class="chip">2° en 7°B</span>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Puesto en el colegio: se compara el ponderado entre todos los cursos del mismo grado.</p>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-ghost">Descargar PDF</button>
+      <button class="btn btn-primary">Descargar Excel</button>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGISTRAR CONVIVENCIA -->
+  <section class="screen" id="screen-convivencia">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Registrar convivencia</h1></div>
+    <div class="wrap">
+      <p class="lead">Tú eliges el tipo — la IA solo ayuda a redactar el hecho, nunca lo clasifica.</p>
+      <div class="field"><label>Estudiante</label><input type="text" placeholder="Nombre del estudiante"></div>
+      <div class="field">
+        <label>Tipo de situación (manual de convivencia)</label>
+        <select id="conv-tipo">
+          <option value="1">Tipo 1 — se maneja dentro del aula/colegio</option>
+          <option value="2">Tipo 2 — activa comité de convivencia</option>
+          <option value="3">Tipo 3 — posible delito, remisión a autoridades</option>
+        </select>
+      </div>
+      <div class="field"><label>Qué pasó (hechos, tal como los viste)</label><textarea id="conv-hechos" placeholder="Describe el hecho con la mayor precisión posible…"></textarea></div>
+      <button class="btn btn-primary" onclick="Elias.redactarConvivencia()">Redactar con IA</button>
+      <div class="card" id="conv-resultado" style="display:none">
+        <p class="card-title" style="margin:0 0 4px">Narrativa sugerida</p>
+        <p class="small" id="conv-resultado-texto"></p>
+      </div>
+      <button class="btn btn-ghost" onclick="Elias.go('dashboard')">Guardar registro</button>
+    </div>
+  </section>
+
+  <!-- OBSERVADOR -->
+  <section class="screen" id="screen-observador">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Observador del estudiante</h1></div>
+    <div class="wrap">
+      <p class="lead">Anota un evento del día — se conecta automáticamente al historial del estudiante.</p>
+      <div class="field"><label>Estudiante</label><input type="text" placeholder="Nombre del estudiante"></div>
+      <div class="field"><label>Fecha</label><input type="date"></div>
+      <div class="field"><label>Anotación</label><textarea placeholder="Qué observaste…"></textarea></div>
+      <button class="btn btn-primary" onclick="Elias.go('dashboard')">Guardar anotación</button>
+      <p class="small">Si se acumulan varias anotaciones similares, ELIAS puede sugerir — nunca decidir — escalar a un Anexo 2.</p>
+    </div>
+  </section>
+
+  <!-- ANEXO 2 -->
+  <section class="screen" id="screen-anexo2">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Anexo 2 — acompañamiento</h1></div>
+    <div class="wrap">
+      <p class="lead">Solo parámetros observacionales — nunca un diagnóstico. La IA arma el formato oficial (PIAR) a partir de esto.</p>
+      <div class="field"><label>Estudiante</label><input type="text" placeholder="Nombre del estudiante"></div>
+      <div class="field"><label>Gustos e intereses</label><textarea placeholder="Qué le gusta, qué lo motiva…"></textarea></div>
+      <div class="field"><label>Lo que no le gusta / le cuesta</label><textarea placeholder="…"></textarea></div>
+      <div class="field"><label>Logros observados</label><textarea placeholder="…"></textarea></div>
+      <div class="field"><label>Apoyos que parece necesitar</label><textarea placeholder="…"></textarea></div>
+      <button class="btn btn-primary" onclick="Elias.go('dashboard')">Enviar a Orientación</button>
+    </div>
+  </section>
+
+  <!-- INFORME CONSOLIDADO (Rector) -->
+  <section class="screen" id="screen-informeconsolidado">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Informe consolidado</h1></div>
+    <div class="wrap">
+      <p class="lead">La IA redacta las conclusiones a partir de los indicadores de las 4 gestiones — tú decides si se publica.</p>
+      <div class="dash-scope">
+      <div class="row" style="gap:8px">
+        <button class="btn btn-primary" style="flex:1">Por sede</button>
+        <button class="btn btn-ghost" style="flex:1">Global</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><p class="kpi-num">4.1</p><p class="kpi-label">Promedio académico</p></div>
+        <div class="kpi"><p class="kpi-num">12</p><p class="kpi-label">Casos convivencia</p></div>
+        <div class="kpi"><p class="kpi-num">6</p><p class="kpi-label">PIAR activos</p></div>
+        <div class="kpi"><p class="kpi-num">4.2%</p><p class="kpi-label">Deserción</p></div>
+      </div>
+      <div class="card">
+        <p class="card-title">Conclusiones (IA)</p>
+        <p class="card-sub" id="informe-texto">Aún no generadas.</p>
+        <button class="btn btn-primary" style="align-self:flex-start;margin-top:8px" onclick="Elias.generarInformeAdmin()">Generar con IA</button>
+      </div>
+      </div>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-ghost" style="flex:1">Descargar PDF</button>
+        <button class="btn btn-primary" style="flex:1">Publicar a directivos</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GESTIÓN DE PERMISOS (Rector) -->
+  <section class="screen" id="screen-permisos">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Gestión de permisos</h1></div>
+    <div class="wrap">
+      <p class="lead">Delega funciones tuyas a Secretaría. Tú conservas el acceso siempre.</p>
+      <div class="dash-scope">
+      <div class="switch-row"><div class="switch-label"><span class="switch-name">Crear y dar de baja docentes</span><span class="switch-sub">Hoy: Secretaría</span></div><div class="switch"></div></div>
+      <div class="switch-row"><div class="switch-label"><span class="switch-name">Configurar calendario escolar</span><span class="switch-sub">Hoy: Secretaría</span></div><div class="switch"></div></div>
+      <div class="switch-row"><div class="switch-label"><span class="switch-name">Publicar informe consolidado</span><span class="switch-sub">Hoy: solo Rectora</span></div><div class="switch"></div></div>
+      <div class="switch-row"><div class="switch-label"><span class="switch-name">Enviar notificaciones a toda la sede</span><span class="switch-sub">Hoy: Secretaría</span></div><div class="switch"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FECHAS DE CORTE (Secretaría) -->
+  <section class="screen" id="screen-fechascorte">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Fechas de corte</h1></div>
+    <div class="wrap">
+      <p class="lead">Se notifica a todos los docentes cuando se acerca cada corte.</p>
+      <div class="dash-scope">
+      <div class="card"><p class="card-title">Periodo 1</p><div class="field" style="margin:6px 0 0"><input type="date"></div></div>
+      <div class="card"><p class="card-title">Periodo 2</p><div class="field" style="margin:6px 0 0"><input type="date"></div></div>
+      <div class="card"><p class="card-title">Periodo 3</p><div class="field" style="margin:6px 0 0"><input type="date"></div></div>
+      <div class="card"><p class="card-title">Periodo 4</p><div class="field" style="margin:6px 0 0"><input type="date"></div></div>
+      </div>
+      <button class="btn btn-primary">Guardar fechas</button>
+    </div>
+  </section>
+
+  <!-- PRE-INFORME ACADÉMICO (Coord. Académico revisa / Secretaría publica) -->
+  <section class="screen" id="screen-preinforme">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Pre-informe académico</h1></div>
+    <div class="wrap">
+      <p class="lead">Coordinación Académica revisa antes de que Secretaría publique a los acudientes.</p>
+      <div class="dash-scope">
+      <div class="card"><div class="row"><p class="card-title" style="margin:0">6°A</p><span class="chip chip-teal">Revisado</span></div><p class="card-sub">Promedio 4.1 · sin alertas</p></div>
+      <div class="card"><div class="row"><p class="card-title" style="margin:0">7°B</p><span class="chip">Pendiente</span></div><p class="card-sub">Promedio 3.6 · 2 estudiantes en riesgo</p></div>
+      <div class="card"><div class="row"><p class="card-title" style="margin:0">8°A</p><span class="chip">Pendiente</span></div><p class="card-sub">Promedio 3.9 · sin alertas</p></div>
+      </div>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-ghost" style="flex:1">Marcar revisado</button>
+        <button class="btn btn-primary" style="flex:1">Publicar a acudientes</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANCO DE ACTIVIDADES (Docente) -->
+  <section class="screen" id="screen-bancoactividades">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Banco de actividades</h1></div>
+    <div class="wrap">
+      <p class="lead">40 semanas por asignatura · actividades complementarias, no la clase completa. Funciona sin internet.</p>
+      <div class="field"><label>Asignatura</label><select><option>Español</option><option>Matemáticas</option></select></div>
+      <div class="dash-scope">
+      <div class="card">
+        <p class="card-title">Semana 12 · Comprensión lectora</p>
+        <p class="card-sub"><b>Objetivo:</b> identificar la idea principal de un texto corto.</p>
+        <p class="card-sub"><b>Indicador:</b> reconoce la estructura del texto (Saber).</p>
+        <p class="card-sub"><b>Competencia:</b> Ser · Saber · Hacer</p>
+      </div>
+      </div>
+      <button class="btn btn-primary" onclick="Elias.generarActividad()">Generar nueva actividad con IA</button>
+    </div>
+  </section>
+
+  <!-- CONSOLIDADOS (Orientación) -->
+  <section class="screen" id="screen-consolidadosorientacion">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Consolidados</h1></div>
+    <div class="wrap">
+      <div class="dash-scope">
+      <div class="card"><p class="card-title">PIAR</p><p class="card-sub">6 activos · 2 en construcción</p></div>
+      <div class="card"><p class="card-title">Convivencia</p><p class="card-sub">3 casos tipo 2 · 1 caso tipo 3 este periodo</p></div>
+      <div class="card"><p class="card-title">Atención a padres</p><p class="card-sub">5 citas esta semana</p></div>
+      </div>
+      <button class="btn btn-ghost">Descargar PDF</button>
+    </div>
+  </section>
+
+  <!-- MIS EVALUACIONES (Estudiante) -->
+  <section class="screen" id="screen-misevaluaciones">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Mis evaluaciones</h1></div>
+    <div class="wrap">
+      <div class="dash-scope">
+      <div class="card"><div class="row"><p class="card-title" style="margin:0">Matemáticas · Fracciones</p><span class="chip">Pendiente</span></div><p class="card-sub">Vence 24 sep</p></div>
+      <div class="card"><div class="row"><p class="card-title" style="margin:0">Ciencias · El ciclo del agua</p><span class="chip chip-teal">Resuelta</span></div><p class="card-sub">Nota: 4.5</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MIS CALIFICACIONES (Estudiante) -->
+  <section class="screen" id="screen-miscalificaciones">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Mis calificaciones</h1></div>
+    <div class="wrap">
+      <div class="dash-scope">
+      <div class="period-tabs">
+        <div class="period-tab">Periodo 1</div><div class="period-tab">Periodo 2</div><div class="period-tab active">Periodo 3</div><div class="period-tab">Periodo 4</div>
+      </div>
+      <div class="table-wrap">
+        <div class="t-head"><span>Asignatura</span><span>N1</span><span>N2</span><span>N3</span><span>N4</span><span>Final</span></div>
+        <div class="t-body">
+          <div class="t-row"><div class="stu-name">Matemáticas</div><span class="final-note">4.5</span><span class="final-note">4.2</span><span class="final-note">—</span><span class="final-note">—</span><span class="final-note">4.4</span></div>
+          <div class="t-row"><div class="stu-name">Español</div><span class="final-note">4.8</span><span class="final-note">4.6</span><span class="final-note">—</span><span class="final-note">—</span><span class="final-note">4.7</span></div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALIFICACIONES DEL HIJO/A (Padre) -->
+  <section class="screen" id="screen-calificacioneshijo">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Calificaciones</h1></div>
+    <div class="wrap">
+      <div class="field"><label>Estudiante</label><select><option>Camila Torres · 6°A</option></select></div>
+      <div class="dash-scope">
+      <div class="period-tabs">
+        <div class="period-tab">Periodo 1</div><div class="period-tab">Periodo 2</div><div class="period-tab active">Periodo 3</div><div class="period-tab">Periodo 4</div>
+      </div>
+      <div class="table-wrap">
+        <div class="t-head"><span>Asignatura</span><span>N1</span><span>N2</span><span>N3</span><span>N4</span><span>Final</span></div>
+        <div class="t-body">
+          <div class="t-row"><div class="stu-name">Matemáticas</div><span class="final-note">4.5</span><span class="final-note">4.2</span><span class="final-note">—</span><span class="final-note">—</span><span class="final-note">4.4</span></div>
+          <div class="t-row"><div class="stu-name">Español</div><span class="final-note">4.8</span><span class="final-note">4.6</span><span class="final-note">—</span><span class="final-note">—</span><span class="final-note">4.7</span></div>
+        </div>
+      </div>
+      </div>
+      <button class="btn btn-ghost">Descargar boletín PDF</button>
+    </div>
+  </section>
+
+  <!-- HORARIOS Y MALLAS (Coord. Académico) -->
+  <section class="screen" id="screen-horariosmallas">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Horarios y mallas</h1></div>
+    <div class="wrap">
+      <div class="dash-scope">
+      <div class="card"><p class="card-title">Horario semanal</p><p class="card-sub">Por sede, grado y curso</p><button class="btn btn-ghost" style="align-self:flex-start;margin-top:8px">Editar horario</button></div>
+      <div class="card"><p class="card-title">Malla curricular</p><p class="card-sub">Por asignatura y grado, alineada a los indicadores por periodo</p><button class="btn btn-ghost" style="align-self:flex-start;margin-top:8px">Editar malla</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RUTA DE ATENCIÓN (Coord. Convivencia) -->
+  <section class="screen" id="screen-rutaatencion">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Ruta de atención</h1></div>
+    <div class="wrap">
+      <p class="lead">Caso tipo 3 · Andrés Morales, 7°B — Decreto 1965</p>
+      <div class="dash-scope">
+      <div class="card"><p class="card-title">1. Atención inmediata</p><p class="card-sub">Garantizar la seguridad de los involucrados</p></div>
+      <div class="card"><p class="card-title">2. Informar a acudientes</p><p class="card-sub">Registrado 18 sep</p></div>
+      <div class="card"><p class="card-title">3. Remisión a entidades</p><p class="card-sub">Pendiente</p></div>
+      <div class="card"><p class="card-title">4. Seguimiento</p><p class="card-sub">Pendiente</p></div>
+      </div>
+      <button class="btn btn-primary">Continuar protocolo</button>
+    </div>
+  </section>
+
+  <!-- COMITÉ DE CONVIVENCIA (Coord. Convivencia) -->
+  <section class="screen" id="screen-comiteconvivencia">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Comité de convivencia</h1></div>
+    <div class="wrap">
+      <div class="dash-scope">
+      <div class="card"><div class="row"><p class="card-title" style="margin:0">Andrés Morales · 7°B</p><span class="chip chip-ink">Tipo 3</span></div><p class="card-sub">En ruta de atención</p></div>
+      <div class="card"><div class="row"><p class="card-title" style="margin:0">Grupo 8°A</p><span class="chip chip-ink">Tipo 2</span></div><p class="card-sub">Comité citado 20 sep</p></div>
+      </div>
+      <button class="btn btn-ghost">Ver patrones por curso y sede</button>
+    </div>
+  </section>
+
+  <!-- GESTIÓN (accesos por perfil) -->
+  <section class="screen" id="screen-gestion">
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Gestión</h1></div>
+    <div class="wrap" id="gestion-list"></div>
+  </section>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/ai/llama-client.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+

@@ -505,7 +505,7 @@ textarea{resize:vertical;min-height:70px;}
           <p class="card-title">Colegio San Rafael</p>
           <p class="card-sub">3 sedes · datos institucionales</p>
         </div>
-        <button class="btn btn-ghost">Editar logo</button>
+        <button class="btn btn-ghost" onclick="Elias.go('perfilinstitucional')">Editar logo</button>
       </div>
     </div>
     <div class="kpi-grid">
@@ -518,8 +518,8 @@ textarea{resize:vertical;min-height:70px;}
       <p class="card-title">Informe consolidado</p>
       <p class="card-sub">Generado por IA con los datos de las 4 gestiones</p>
       <div class="row">
-        <button class="btn btn-ghost" style="flex:1">Por sede</button>
-        <button class="btn btn-primary" style="flex:1">Global</button>
+        <button class="btn btn-ghost" style="flex:1" onclick="Elias.go('informeconsolidado')">Por sede</button>
+        <button class="btn btn-primary" style="flex:1" onclick="Elias.go('informeconsolidado')">Global</button>
       </div>
     </div>
     <div class="card">
@@ -536,7 +536,7 @@ textarea{resize:vertical;min-height:70px;}
 <div class="card">
       <p class="card-title">Fechas de corte</p>
       <p class="card-sub">Periodo 3 · próximo corte 30 oct 2026</p>
-      <button class="btn btn-primary" style="align-self:flex-start">Programar</button>
+      <button class="btn btn-primary" style="align-self:flex-start" onclick="Elias.go('fechascorte')">Programar</button>
     </div>
     <div class="card">
       <div class="row">
@@ -544,7 +544,7 @@ textarea{resize:vertical;min-height:70px;}
         <span class="pill pill-teal">Listo</span>
       </div>
       <p class="card-sub">Generado por IA con los registros de los docentes</p>
-      <button class="btn btn-primary" style="align-self:flex-start">Revisar y publicar</button>
+      <button class="btn btn-primary" style="align-self:flex-start" onclick="Elias.go('preinforme')">Revisar y publicar</button>
     </div>
     <div class="card">
       <p class="card-title">Matrículas y deserción</p>
@@ -561,7 +561,7 @@ textarea{resize:vertical;min-height:70px;}
         <span class="chip">Docentes</span>
         <span class="chip">Estudiantes</span>
       </div>
-      <button class="btn btn-primary" style="align-self:flex-start">Nuevo comunicado</button>
+      <button class="btn btn-primary" style="align-self:flex-start" onclick="Elias.go('notificaciones')">Nuevo comunicado</button>
     </div>
 </div>
 </div>
@@ -584,8 +584,8 @@ textarea{resize:vertical;min-height:70px;}
       </div>
       <p class="card-sub">Evaluaciones, refuerzo y actividades complementarias</p>
       <div class="row">
-        <button class="btn btn-ghost" style="flex:1">Evaluación en línea</button>
-        <button class="btn btn-primary" style="flex:1">Refuerzo</button>
+        <button class="btn btn-ghost" style="flex:1" onclick="Elias.go('bancoactividades')">Evaluación en línea</button>
+        <button class="btn btn-primary" style="flex:1" onclick="Elias.go('bancoactividades')">Refuerzo</button>
       </div>
     </div>
     <div class="card">
@@ -599,17 +599,17 @@ textarea{resize:vertical;min-height:70px;}
         <div class="type-chip t2">Tipo 2</div>
         <div class="type-chip t3">Tipo 3</div>
       </div>
-      <button class="btn btn-primary btn-block">Registrar situación</button>
+      <button class="btn btn-primary btn-block" onclick="Elias.go('convivencia')">Registrar situación</button>
     </div>
     <div class="card">
       <p class="card-title">Observador del estudiante</p>
       <p class="card-sub">Anota un evento del día — se conecta al historial del estudiante</p>
-      <button class="btn btn-ghost btn-block">Nueva anotación</button>
+      <button class="btn btn-ghost btn-block" onclick="Elias.go('observador')">Nueva anotación</button>
     </div>
     <div class="card">
       <p class="card-title">Acompañamiento pedagógico</p>
       <p class="card-sub">Sofía R. · 6°A · reporte pendiente</p>
-      <button class="btn btn-ghost btn-block">Completar Anexo 2</button>
+      <button class="btn btn-ghost btn-block" onclick="Elias.go('anexo2')">Completar Anexo 2</button>
     </div>
 </div>
 </div>
@@ -623,14 +623,14 @@ textarea{resize:vertical;min-height:70px;}
     <div class="card">
       <p class="card-title">Notificación nueva</p>
       <p class="card-sub">Anexo 2 de 6°A · acompañamiento pedagógico</p>
-      <button class="btn btn-primary" style="align-self:flex-start">Ver reporte</button>
+      <button class="btn btn-primary" style="align-self:flex-start" onclick="Elias.go('anexo2')">Ver reporte</button>
     </div>
     <div class="card">
       <p class="card-title">Consolidados</p>
       <div class="row" style="gap:8px">
-        <button class="btn btn-ghost btn-sm">PIAR</button>
-        <button class="btn btn-ghost btn-sm">Convivencia</button>
-        <button class="btn btn-ghost btn-sm">Atención a padres</button>
+        <button class="btn btn-ghost btn-sm" onclick="Elias.go('piar')">PIAR</button>
+        <button class="btn btn-ghost btn-sm" onclick="Elias.go('convivencia')">Convivencia</button>
+        <button class="btn btn-ghost btn-sm" onclick="Elias.go('consolidadosorientacion')">Atención a padres</button>
       </div>
     </div>
     <div class="card">
@@ -652,7 +652,7 @@ textarea{resize:vertical;min-height:70px;}
     <div class="card">
       <p class="card-title">Actividad de refuerzo</p>
       <p class="card-sub">Matemáticas · vence el 24 de septiembre</p>
-      <button class="btn btn-primary" style="align-self:flex-start">Ver detalle</button>
+      <button class="btn btn-primary" style="align-self:flex-start" onclick="Elias.go('calificacioneshijo')">Ver detalle</button>
     </div>
     <div class="card">
       <p class="card-title">Convivencia</p>
@@ -677,7 +677,7 @@ textarea{resize:vertical;min-height:70px;}
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
         20 min · 2 intentos
       </div>
-      <button class="btn btn-primary btn-block">Comenzar</button>
+      <button class="btn btn-primary btn-block" onclick="Elias.go('misevaluaciones')">Comenzar</button>
     </div>
     <div class="card">
       <p class="card-title">Mis tareas</p>
@@ -694,7 +694,7 @@ textarea{resize:vertical;min-height:70px;}
     <div class="card">
       <p class="card-title">Actividad de refuerzo</p>
       <p class="card-sub">Matemáticas · asignada por tu docente</p>
-      <button class="btn btn-ghost btn-block">Responder</button>
+      <button class="btn btn-ghost btn-block" onclick="Elias.go('apoyoestudio')">Responder</button>
     </div>
 </div>
 </div>
@@ -713,7 +713,7 @@ textarea{resize:vertical;min-height:70px;}
         <span class="pill pill-teal">Por revisar</span>
       </div>
       <p class="card-sub">Generado por IA con los registros de los docentes — pasa a Secretaría después de tu revisión</p>
-      <button class="btn btn-primary btn-block">Revisar</button>
+      <button class="btn btn-primary btn-block" onclick="Elias.go('preinforme')">Revisar</button>
     </div>
     <div class="card">
       <p class="card-title">Promoción y reprobación</p>
@@ -724,8 +724,8 @@ textarea{resize:vertical;min-height:70px;}
       <p class="card-title">Planeación curricular</p>
       <p class="card-sub">Horarios, mallas y seguimiento a docentes por asignatura</p>
       <div class="row" style="gap:8px">
-        <button class="btn btn-ghost btn-sm">Horarios</button>
-        <button class="btn btn-ghost btn-sm">Mallas</button>
+        <button class="btn btn-ghost btn-sm" onclick="Elias.go('horariosmallas')">Horarios</button>
+        <button class="btn btn-ghost btn-sm" onclick="Elias.go('horariosmallas')">Mallas</button>
         <button class="btn btn-ghost btn-sm">Docentes</button>
       </div>
     </div>
@@ -741,7 +741,7 @@ textarea{resize:vertical;min-height:70px;}
     <div class="card">
       <p class="card-title">Ruta de atención integral</p>
       <p class="card-sub">Laura G. · Tipo 3 · siguiente paso: remisión a Comisaría de Familia</p>
-      <button class="btn btn-primary btn-block">Continuar protocolo</button>
+      <button class="btn btn-primary btn-block" onclick="Elias.go('rutaatencion')">Continuar protocolo</button>
     </div>
     <div class="card">
       <p class="card-title">Patrones por curso y sede</p>
@@ -752,8 +752,8 @@ textarea{resize:vertical;min-height:70px;}
       <p class="card-title">Articulación con Orientación</p>
       <p class="card-sub">Seguimiento psicosocial conjunto de los casos abiertos</p>
       <div class="row" style="gap:8px">
-        <button class="btn btn-ghost btn-sm">Ver casos</button>
-        <button class="btn btn-ghost btn-sm">Comité</button>
+        <button class="btn btn-ghost btn-sm" onclick="Elias.go('comiteconvivencia')">Ver casos</button>
+        <button class="btn btn-ghost btn-sm" onclick="Elias.go('comiteconvivencia')">Comité</button>
       </div>
     </div>
 </div>

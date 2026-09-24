@@ -300,12 +300,15 @@ const EliasDemo = (() => {
 
   // ---------- Planilla / calificaciones ----------
   function notaPlanilla(estudianteId, asignatura) {
-    return DB.planilla[estudianteId + '|' + asignatura] || { actividades: null, evaluaciones: null, tareas: null, evaluacionFinal: null, comportamiento: null, autoevaluacion: null };
+    return DB.planilla[estudianteId + '|' + asignatura] || { actividades: null, evaluaciones: null, tareas: null, evaluacionFinal: null, comportamiento: null, autoevaluacion: null, docenteId: null };
   }
-  function guardarNotaPlanilla(estudianteId, asignatura, campo, valor) {
+  // docenteId: quién registró/editó por última vez esta nota — trazabilidad para Coordinación/Rectoría.
+  // Preparado para viajar tal cual a la columna docente_id de la tabla notas en Supabase.
+  function guardarNotaPlanilla(estudianteId, asignatura, campo, valor, docenteId) {
     const key = estudianteId + '|' + asignatura;
-    if (!DB.planilla[key]) DB.planilla[key] = { actividades: null, evaluaciones: null, tareas: null, evaluacionFinal: null, comportamiento: null, autoevaluacion: null };
+    if (!DB.planilla[key]) DB.planilla[key] = { actividades: null, evaluaciones: null, tareas: null, evaluacionFinal: null, comportamiento: null, autoevaluacion: null, docenteId: null };
     DB.planilla[key][campo] = valor === '' ? null : Number(valor);
+    if (docenteId) DB.planilla[key].docenteId = docenteId;
     guardar(DB);
     return promedioFinal(DB.planilla[key]);
   }
@@ -314,6 +317,13 @@ const EliasDemo = (() => {
     if (!campos.length) return null;
     const suma = campos.reduce((a, b) => a + Number(b), 0);
     return Math.round((suma / campos.length) * 100) / 100;
+  }
+  // Todas las casillas de planilla de un estudiante (una por asignatura) — usado para el ranking/Puesto real.
+  function notasDeEstudiante(estudianteId) {
+    const prefijo = estudianteId + '|';
+    return Object.keys(DB.planilla)
+      .filter(k => k.startsWith(prefijo))
+      .map(k => DB.planilla[k]);
   }
   function promedioActividades(notas) {
     // notas: array de números (varias actividades del banco) -> promedio para la casilla "Actividades"
@@ -407,7 +417,7 @@ const EliasDemo = (() => {
     estudiante, docente, curso, padre, grado,
     loginUsuario, loginCorreo, cuentasDePrueba,
     generarUsuario, generarClave, crearDocentesMasivo, crearEstudiantesMasivo,
-    notaPlanilla, guardarNotaPlanilla, promedioFinal, promedioActividades,
+    notaPlanilla, guardarNotaPlanilla, notasDeEstudiante, promedioFinal, promedioActividades,
     puedeEditarObservador, minutosRestantes, crearObservador, editarObservador, registrosObservadorDe, marcarNotificado15,
     puedeEditarDescargos, guardarDescargos,
     candidatosVisibles, preinscribir, validarCandidato, yaVoto, votar, resultadosVotacion,

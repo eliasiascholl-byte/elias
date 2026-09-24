@@ -62,6 +62,7 @@ const Elias = (() => {
     if (screenId === 'gobiernoescolar') renderGobiernoEscolar();
     if (screenId === 'piar') renderPIAR();
     if (screenId === 'informeconsolidado') renderInformeConsolidadoKPIs();
+    if (screenId === 'puesto') renderPuesto();
     window.scrollTo(0, 0);
   }
 
@@ -540,8 +541,9 @@ const Elias = (() => {
         ${estudiantes.map(e => {
           const n = EliasDemo.notaPlanilla(e.id, asignatura);
           const prom = EliasDemo.promedioFinal(n);
+          const docNota = n.docenteId ? EliasDemo.docente(n.docenteId) : null;
           return `<div class="t-row" style="grid-template-columns:1.3fr .7fr .7fr .7fr .7fr .6fr .8fr .8fr">
-            <div class="stu-name">${e.nombre}<span class="grade-tag">${EliasDemo.curso(e.curso) ? EliasDemo.curso(e.curso).nombre : ''}</span></div>
+            <div class="stu-name">${e.nombre}<span class="grade-tag">${EliasDemo.curso(e.curso) ? EliasDemo.curso(e.curso).nombre : ''}</span><span class="small" id="doc-${e.id}-${asignatura.replace(/\s/g,'')}" style="display:block;color:var(--text-soft);font-size:10px">${docNota ? 'Registrado por ' + docNota.nombre : ''}</span></div>
             <input class="note-input" type="number" step="0.1" min="0" max="5" value="${n.actividades ?? ''}" onchange="Elias.onNotaInput(this,'${e.id}','${asignatura}','actividades')">
             <input class="note-input" type="number" step="0.1" min="0" max="5" value="${n.evaluaciones ?? ''}" onchange="Elias.onNotaInput(this,'${e.id}','${asignatura}','evaluaciones')">
             <input class="note-input" type="number" step="0.1" min="0" max="5" value="${n.tareas ?? ''}" onchange="Elias.onNotaInput(this,'${e.id}','${asignatura}','tareas')">
@@ -555,10 +557,47 @@ const Elias = (() => {
       </div>`;
   }
 
+  // Puesto / ranking real — Ponderado = 70% académico + 30% comportamiento, calculado desde la planilla real.
+  // (70/30 es el valor por defecto hasta que Coord. Académica configure su propia ponderación en Sistema de evaluación.)
+  function renderPuesto() {
+    const tabla = document.getElementById('puesto-tabla');
+    if (!tabla) return;
+    const estudiantes = estudiantesVisibles();
+    const filas = estudiantes.map(e => {
+      const notas = EliasDemo.notasDeEstudiante(e.id);
+      const academicos = notas.map(n => EliasDemo.promedioFinal(n)).filter(v => v !== null && v !== undefined);
+      const comportamientos = notas.map(n => n.comportamiento).filter(v => v !== null && v !== undefined);
+      const academico = academicos.length ? Math.round((academicos.reduce((a, b) => a + b, 0) / academicos.length) * 100) / 100 : null;
+      const comportamiento = comportamientos.length ? Math.round((comportamientos.reduce((a, b) => a + b, 0) / comportamientos.length) * 100) / 100 : null;
+      const ponderado = (academico !== null && comportamiento !== null) ? Math.round((academico * 0.7 + comportamiento * 0.3) * 100) / 100 : null;
+      const curso = EliasDemo.curso(e.curso);
+      return { id: e.id, nombre: e.nombre, cursoId: e.curso, cursoNombre: curso ? curso.nombre : '', academico, comportamiento, ponderado };
+    });
+    const porCurso = {};
+    filas.forEach(f => { (porCurso[f.cursoId] = porCurso[f.cursoId] || []).push(f); });
+    Object.values(porCurso).forEach(grupo => {
+      grupo.sort((a, b) => (b.ponderado ?? -1) - (a.ponderado ?? -1));
+      let puesto = 0;
+      grupo.forEach(f => { if (f.ponderado !== null) { puesto++; f.puesto = puesto; } });
+    });
+    filas.sort((a, b) => a.cursoNombre.localeCompare(b.cursoNombre) || (b.ponderado ?? -1) - (a.ponderado ?? -1));
+    tabla.innerHTML = filas.length ? filas.map(f => `
+      <div class="t-row" style="grid-template-columns:1.4fr .8fr .8fr .8fr .8fr">
+        <div class="stu-name">${f.nombre}<span class="grade-tag">${f.cursoNombre}</span></div>
+        <span class="final-note">${f.academico ?? '—'}</span>
+        <span class="final-note">${f.comportamiento ?? '—'}</span>
+        <span class="final-note">${f.ponderado ?? '—'}</span>
+        ${f.puesto ? `<span class="chip ${f.puesto === 1 ? 'chip-teal' : ''}">${f.puesto}° en ${f.cursoNombre}</span>` : '<span class="chip">Sin notas aún</span>'}
+      </div>`).join('') : '<p class="small" style="padding:12px 0">Todavía no hay notas registradas en la planilla.</p>';
+  }
+
   function onNotaInput(input, estudianteId, asignatura, campo) {
-    const prom = EliasDemo.guardarNotaPlanilla(estudianteId, asignatura, campo, input.value);
+    const docenteId = demoSesion && demoSesion.rol === 'docente' ? demoSesion.perfilId : null;
+    const prom = EliasDemo.guardarNotaPlanilla(estudianteId, asignatura, campo, input.value, docenteId);
     const span = document.getElementById(`prom-${estudianteId}-${asignatura.replace(/\s/g, '')}`);
     if (span) span.textContent = prom ?? '—';
+    const tag = document.getElementById(`doc-${estudianteId}-${asignatura.replace(/\s/g, '')}`);
+    if (tag && docenteId) { const d = EliasDemo.docente(docenteId); tag.textContent = d ? 'Registrado por ' + d.nombre : ''; }
   }
 
   function calcularPromedioActividades() {
@@ -867,7 +906,7 @@ const Elias = (() => {
     go, back, login, obNext, obPrev, obReset, speakStep, setRole, dashTab, redactarConvivencia, regTipoChange, setEscala, pondCheck,
     generarInformeAdmin, generarActividad, crearInstitucion, registrarDocente, generarClaveTemporal, cambiarClave, cerrarMensaje,
     demoTab, entrarDemoCorreo, entrarDemoUsuario, guardarPerfilDemo,
-    onNotaInput, calcularPromedioActividades, renderPlanilla,
+    onNotaInput, calcularPromedioActividades, renderPlanilla, renderPuesto,
     guardarObservador, guardarEdicionObservador, enviarDescargos,
     preinscribirGobierno, validarGobierno, votarGobierno,
     generarPIARDocente, pedirApoyoEstudio,

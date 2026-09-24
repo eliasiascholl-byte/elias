@@ -184,6 +184,7 @@ textarea{resize:vertical;min-height:70px;}
   .navbar{display:flex;align-items:center;justify-content:space-around;background:var(--surface);border-top:1px solid var(--border);padding:10px 6px calc(10px + env(safe-area-inset-bottom,0px));}
   .navitem{flex:1;text-align:center;font-size:11px;font-weight:600;color:var(--text-soft);cursor:pointer;padding:6px 4px;border-radius:10px;}
   .navitem.active{color:var(--teal);font-weight:800;}
+#informe-texto{white-space:pre-line;line-height:1.6;display:block;}
 </style>
 </head>
 <body>
@@ -370,7 +371,7 @@ textarea{resize:vertical;min-height:70px;}
   </section>
   <!-- REGISTRO DOCENTE -->
   <section class="screen" id="screen-registro">
-    <div class="topbar"><img src="icon-elias.png" alt="ELIAS"><h1>Registro de docente</h1></div>
+    <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Registro de docente</h1></div>
     <div class="wrap">
       <p class="lead">Lo diligencia Secretaría (o Rector) al crear la cuenta del docente.</p>
       <div class="field"><label>Nombre completo</label><input type="text" id="reg-nombre" placeholder="Nombre y apellidos"></div>
@@ -1035,32 +1036,11 @@ textarea{resize:vertical;min-height:70px;}
   <section class="screen" id="screen-puesto">
     <div class="topbar"><button class="btn btn-ghost btn-sm" onclick="Elias.back()">← Atrás</button><h1>Puesto</h1></div>
     <div class="wrap">
-      <p class="lead">Ponderado = Académico + Comportamiento, según lo que definió Coordinación Académica. Se recalcula solo, por periodo.</p>
+      <p class="lead">Ponderado = 70% Académico + 30% Comportamiento (ponderación por defecto hasta que Coordinación Académica la configure en Sistema de evaluación). Calculado en tiempo real desde la planilla de calificaciones.</p>
       <div class="dash-scope">
-    <div class="period-tabs">
-      <div class="period-tab">Periodo 1</div>
-      <div class="period-tab">Periodo 2</div>
-      <div class="period-tab active">Periodo 3</div>
-      <div class="period-tab">Periodo 4</div>
-    </div>
     <div class="table-wrap">
       <div class="t-head"><span>Estudiante</span><span>Académico</span><span>Comport.</span><span>Ponderado</span><span>Puesto curso</span></div>
-      <div class="t-body">
-        <div class="t-row" style="grid-template-columns:1.4fr .8fr .8fr .8fr .8fr">
-          <div class="stu-name">Juan Pérez<span class="grade-tag">7°B</span></div>
-          <span class="final-note">4.65</span><span class="final-note">4.9</span><span class="final-note">4.70</span>
-          <span class="chip chip-teal">1° en 7°B</span>
-        </div>
-        <div class="t-row" style="grid-template-columns:1.4fr .8fr .8fr .8fr .8fr">
-          <div class="stu-name">Camila Torres<span class="grade-tag">6°A</span></div>
-          <span class="final-note">4.4</span><span class="final-note">4.8</span><span class="final-note">4.48</span>
-          <span class="chip chip-teal">1° en 6°A</span>
-        </div>
-        <div class="t-row" style="grid-template-columns:1.4fr .8fr .8fr .8fr .8fr">
-          <div class="stu-name">Andrés Morales<span class="grade-tag">7°B</span></div>
-          <span class="final-note">4.1</span><span class="final-note">3.9</span><span class="final-note">4.06</span>
-          <span class="chip">2° en 7°B</span>
-        </div>
+      <div class="t-body" id="puesto-tabla">
       </div>
     </div>
     <p class="hint">Puesto en el colegio: se compara el ponderado entre todos los cursos del mismo grado.</p>
